@@ -34,3 +34,5 @@
   - acertar um bomber.ai = 50pt
 
 - quando um bomber.ai é acertado ele deixa o campo de partida, uma vez que todos os bombers.ai de um player morrem ele imediatamente perde a partida.
+
+- Primeiro o servidor irá executar os comandos de movimento. Depois as ações (colocar bomba/chutar bomba/jogar bomba) e por ultimo serão realizadas as explosões no mapa
