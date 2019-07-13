@@ -19,7 +19,26 @@ class Player(object):
         self.name = name
 
 class Bomb(object):
-    pass
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.remaning_time = 5
+        self.power = 3
+    
+    def update(self):
+        self.remaning_time -= 1
+
+class Explosion(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.remaning_time = 2
+
+    def update(self):
+        self.remaning_time -= 1
+
+bombs = []
+explosions = []
 
 # array
 
@@ -107,11 +126,12 @@ def movements(_map, movement):
         _map[dest_y][dest_x].append(player_one)
         _map[y][x].remove(player_one)
 
-def bombs(_map, movement):
+def plant_bombs(_map, movement):
     x, y = get_player_location(_map, player_one)
 
     if movement == BOMB:
-        _map[y][x].append(Bomb())
+        bombs.append(Bomb(x, y))
+        _map[y][x].append(bombs[-1])
 
 while True:
     illustrated_map = []
@@ -122,12 +142,15 @@ while True:
             if len(row) == 0:
                 illustrated_map[-1].append(' ')
             else:
+                if isinstance(row[0], Explosion):
+                    illustrated_map[-1].append('@')
                 if isinstance(row[0], Player):
                     illustrated_map[-1].append(row[0].name)
                 if isinstance(row[0], Wall):
                     illustrated_map[-1].append('X')
                 if isinstance(row[0], Bomb):
                     illustrated_map[-1].append('o')
+                    
 
     print(np.array(illustrated_map))
     bot_sample1.execute_command(_map) # i cant send the actually _map object, i need to clone it
@@ -138,10 +161,63 @@ while True:
         if movement in [UP, DOWN, LEFT, RIGHT]:
             movements(_map, movement)
         if movement in [BOMB]:
-            bombs(_map, movement)
+            plant_bombs(_map, movement)
 
     except IndexError:
         pass
+
+    auxiliar_bombs = bombs[:]
+    for bomb in auxiliar_bombs:
+        bomb: Bomb
+        bomb.update()
+        if bomb.remaning_time == 0:
+            bombs.remove(bomb)
+            x = bomb.x
+            y = bomb.y
+            _map[y][x].remove(bomb)
+
+            explosions.append(Explosion(x, y))
+            _map[y][x].append(explosions[-1])
+
+            #FIXME todos esses caras tem que validar se não existe algum obstaculo
+            for i in range(bomb.power):
+                x = bomb.x + i
+                y = bomb.y
+                #FIXME validar tamanho do mapa pra nao estourar array
+                explosions.append(Explosion(x, y))
+                _map[y][x].append(explosions[-1])
+
+            for i in range(bomb.power):
+                x = bomb.x - i
+                y = bomb.y
+                if x < 0:
+                    break
+                explosions.append(Explosion(x, y))
+                _map[y][x].append(explosions[-1])
+
+            for i in range(bomb.power):
+                x = bomb.x
+                y = bomb.y + i
+                #FIXME validar tamanho do mapa pra nao estourar array
+                explosions.append(Explosion(x, y))
+                _map[y][x].append(explosions[-1])
+
+            for i in range(bomb.power):
+                x = bomb.x
+                y = bomb.y - i
+                if y < 0:
+                    break
+                explosions.append(Explosion(x, y))
+                _map[y][x].append(explosions[-1])
+
+    auxiliar_explosions = explosions[:]
+    for explosion in auxiliar_explosions:
+        explosion.update()
+        if explosion.remaning_time == 0:
+            explosions.remove(explosion)
+            x = explosion.x
+            y = explosion.y
+            _map[y][x].remove(explosion)
 
     input('press any button to advance to the next turn...')
 
