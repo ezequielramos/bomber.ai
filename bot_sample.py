@@ -18,4 +18,5 @@ class bot_sample(object):
     def am_i_safe(self, object):
         return True
 
-    
+    def looking_for_safe_place(self):
+        # usar logica de arvore para achar o caminho mais curto

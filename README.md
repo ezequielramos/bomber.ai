@@ -18,3 +18,9 @@
   - ficar parado
 
 - aplicação web onde seja possivel pintar/assistir a partida
+
+- bomba começa explodindo com raio de 2 casas de exploção 
+
+<img src="assets/explosion example.png" width="200px"></img>
+
+- bomba leva 6 turnos para explodir
