@@ -21,13 +21,15 @@ class Player(object):
         self.name = name
         self.x = x
         self.y = y
+        self.points = 0
 
 class Bomb(object):
-    def __init__(self, x, y):
+    def __init__(self, x, y, owner):
         self.x = x
         self.y = y
         self.remaning_time = 7
         self.power = 3
+        self.owner = owner
     
     def update(self):
         self.remaning_time -= 1
@@ -157,7 +159,8 @@ def plant_bombs(_map, movement, player):
     x, y = get_player_location(_map, player)
 
     if movement == BOMB:
-        bombs.append(Bomb(x, y))
+        bombs.append(Bomb(x, y, player))
+        player.points += 1
         _map[y][x].append(bombs[-1])
 
 def draw_map():
@@ -182,9 +185,11 @@ def draw_map():
                     
 
     print(np.array(illustrated_map))
+    for player in players:
+        print(f'Player {player.name}: {player.points}')
     input('press any button to advance to the next turn...')
     
-def create_explosion(_map, x, y):
+def create_explosion(_map, x, y, owner):
     players_killed = []
 
     if x < 0:
@@ -205,6 +210,7 @@ def create_explosion(_map, x, y):
                 remove_block_on(_map, x, y)
                 explosions.append(Explosion(x, y))
                 _map[y][x].append(explosions[-1])
+                owner.points += 2
                 raise ValueError('acertou um bloco')
     except IndexError:
         raise ValueError('explosao foi pra fora do mapa')
@@ -212,6 +218,15 @@ def create_explosion(_map, x, y):
     explosions.append(Explosion(x, y))
     _map[y][x].append(explosions[-1])
 
+    return players_killed
+
+def explosions_goint_to(bomb, x=0, y=0,):
+    players_killed = []
+    for i in range(1, bomb.power):
+        try:
+            players_killed.extend(create_explosion(_map, bomb.x + (i * x), bomb.y + (i * y), bomb.owner))
+        except ValueError:
+            break
     return players_killed
 
 def update_bombs(_map):
@@ -227,31 +242,11 @@ def update_bombs(_map):
 
             players_killed = []
 
-            players_killed.extend(create_explosion(_map, x, y))
-
-            for i in range(bomb.power):
-                try:
-                    players_killed.extend(create_explosion(_map, bomb.x + i, bomb.y))
-                except ValueError:
-                    break
-
-            for i in range(bomb.power):
-                try:
-                    players_killed.extend(create_explosion(_map, bomb.x - i, bomb.y))
-                except ValueError:
-                    break
-
-            for i in range(bomb.power):
-                try:
-                    players_killed.extend(create_explosion(_map, bomb.x, bomb.y + i))
-                except ValueError:
-                    break
-
-            for i in range(bomb.power):
-                try:
-                    players_killed.extend(create_explosion(_map, bomb.x, bomb.y - i))
-                except ValueError:
-                    break
+            players_killed.extend(create_explosion(_map, bomb.x, bomb.y, bomb.owner))
+            explosions_goint_to(bomb, 1, 0)
+            explosions_goint_to(bomb, -1, 0)
+            explosions_goint_to(bomb, 0, 1)
+            explosions_goint_to(bomb, 0, -1)
 
             for player in players_killed:
                 players.remove(player)
