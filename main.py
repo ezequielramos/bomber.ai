@@ -1,6 +1,8 @@
 import numpy as np
 import random
 
+TURN_BY_TURN_MODE = False
+
 NONE = 0
 RIGHT = 1
 LEFT = 2
@@ -163,7 +165,9 @@ def plant_bombs(_map, movement, player):
         player.points += 1
         _map[y][x].append(bombs[-1])
 
-def draw_map():
+def draw_map(turn):
+    print('-' * 55)
+    print(f'Turn {turn}')
     illustrated_map = []
 
     for col in _map:
@@ -186,8 +190,9 @@ def draw_map():
 
     print(np.array(illustrated_map))
     for player in players:
-        print(f'Player {player.name}: {player.points}')
-    input('press any button to advance to the next turn...')
+        print(f'Score player {player.name}: {player.points}')
+    if TURN_BY_TURN_MODE:
+        input('press any button to advance to the next turn...')
     
 def create_explosion(_map, x, y, owner):
     players_killed = []
@@ -264,9 +269,9 @@ def update_explosions(_map):
 if __name__ == "__main__":
 
     put_blocks(_map)
-    draw_map()
+    draw_map(1)
 
-    while True:
+    for turn in range(2,501):
 
         #TODO: this should be an loop throw all bot samples
         bot_sample1.execute_command(_map) # FIXME: i cant send the actually _map object, i need to clone it
@@ -285,7 +290,7 @@ if __name__ == "__main__":
         update_bombs(_map)
         update_explosions(_map)
 
-        draw_map()
+        draw_map(turn)
 
         if len(players) == 1:
             print(f'{players[0].name} venceu!')

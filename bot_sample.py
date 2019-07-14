@@ -36,6 +36,18 @@ class BotSample(object):
         self.actions.append(self.goRight)
         self.actions.append(self.goRight)
         self.actions.append(self.goLeft)
+
+        self.actions.append(self.goDown)
+        self.actions.append(self.goDown)
+        self.actions.append(self.putBomb)
+        self.actions.append(self.goUp)
+        self.actions.append(self.goUp)
+        self.actions.append(self.goRight)
+        self.actions.append(self.goRight)
+        self.actions.append(self.goRight)
+        self.actions.append(self.goRight)
+        self.actions.append(self.goRight)
+        self.actions.append(self.goLeft)
         
         self.action_step = -1
     
