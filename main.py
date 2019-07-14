@@ -22,7 +22,7 @@ class Bomb(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.remaning_time = 5
+        self.remaning_time = 7
         self.power = 3
     
     def update(self):
@@ -40,48 +40,51 @@ class Explosion(object):
 bombs = []
 explosions = []
 
-# array
+def build_map():
 
-array_x = []
+    array_x = []
 
-for j in range(6):
+    for j in range(6):
 
-    array_y = []
-    for i in range(13):
-        if i % 2 == 0:
-            array_y.append([])
-        else:
-            array_y.append([Wall()])
+        array_y = []
+        for i in range(13):
+            if i % 2 == 0:
+                array_y.append([])
+            else:
+                array_y.append([Wall()])
 
-    array_y_empty = []
-    for i in range(13):
-        array_y_empty.append([])
+        array_y_empty = []
+        for i in range(13):
+            array_y_empty.append([])
 
-    array_x.append(array_y_empty)
-    array_x.append(array_y)
+        array_x.append(array_y_empty)
+        array_x.append(array_y)
 
-array_x.pop()
+    array_x.pop()
 
-player_one = Player('1')
-player_two = Player('2')
+    return np.array(array_x)
 
-_map = np.array(array_x)
-_map[0][0].append(player_one)
-_map[-1][-1].append(player_two)
+_map = build_map()
 
-for x in range(len(_map)):
-    for y in range(len(_map[x])):
-        if (
-            (x == 1 and y == 0) or
-            (x == 0 and y == 1) or
-            (x == len(_map) - 1 and y == len(_map[x]) - 2) or 
-            (x == len(_map) - 2 and y == len(_map[x]) - 1)
-        ):
-            continue
-        if len(_map[x][y]):
-            if random.randint(0, 99) < 80:
-                # _map[x][y].append(Block())
-                pass
+players = [Player('1'), Player('2')]
+
+_map[0][0].append(players[0])
+_map[-1][-1].append(players[1])
+
+def put_blocks(_map):
+    for x in range(len(_map)):
+        for y in range(len(_map[x])):
+            #TODO: alterar essa logica para deixar de ser fixa e pegar o redor de cada player
+            if (
+                (x == 1 and y == 0) or
+                (x == 0 and y == 1) or
+                (x == len(_map) - 1 and y == len(_map[x]) - 2) or 
+                (x == len(_map) - 2 and y == len(_map[x]) - 1)
+            ):
+                continue
+            if len(_map[x][y]):
+                if random.randint(0, 99) < 80:
+                    _map[x][y].append(Block())
 
 
 from bot_sample import BotSample
@@ -103,8 +106,8 @@ def get_player_location(_map, player):
 
     return x, y
 
-def movements(_map, movement):
-    x, y = get_player_location(_map, player_one)
+def movements(_map, movement, player):
+    x, y = get_player_location(_map, player)
 
     if movement == DOWN:
         dest_x = x
@@ -122,18 +125,21 @@ def movements(_map, movement):
     if dest_y < 0 or dest_x < 0:
         return
 
-    if len(_map[dest_y][dest_x]) == 0:
-        _map[dest_y][dest_x].append(player_one)
-        _map[y][x].remove(player_one)
+    for _object in _map[dest_y][dest_x]:
+        if isinstance(_object, (Bomb, Wall, Block)):
+            return
 
-def plant_bombs(_map, movement):
-    x, y = get_player_location(_map, player_one)
+    _map[dest_y][dest_x].append(player)
+    _map[y][x].remove(player)
+
+def plant_bombs(_map, movement, player):
+    x, y = get_player_location(_map, player)
 
     if movement == BOMB:
         bombs.append(Bomb(x, y))
         _map[y][x].append(bombs[-1])
 
-while True:
+def draw_map():
     illustrated_map = []
 
     for col in _map:
@@ -153,19 +159,28 @@ while True:
                     
 
     print(np.array(illustrated_map))
-    bot_sample1.execute_command(_map) # i cant send the actually _map object, i need to clone it
-    movement = bot_sample1._last_movement
-    bot_sample1._last_movement = NONE
+    input('press any button to advance to the next turn...')
+    
+draw_map()
 
-    try:
-        if movement in [UP, DOWN, LEFT, RIGHT]:
-            movements(_map, movement)
-        if movement in [BOMB]:
-            plant_bombs(_map, movement)
+def create_explosion(_map, x, y):
+    players_killed = []
 
-    except IndexError:
-        pass
+    if x < 0:
+        raise ValueError('x menor que zero')
+    if y < 0:
+        raise ValueError('y menor que zero')
 
+    explosions.append(Explosion(x, y))
+    _map[y][x].append(explosions[-1])
+
+    for _object in _map[y][x]:
+        if isinstance(_object, Player):
+            players_killed.append(_object)
+
+    return players_killed
+
+def update_bombs(_map):
     auxiliar_bombs = bombs[:]
     for bomb in auxiliar_bombs:
         bomb: Bomb
@@ -176,40 +191,39 @@ while True:
             y = bomb.y
             _map[y][x].remove(bomb)
 
-            explosions.append(Explosion(x, y))
-            _map[y][x].append(explosions[-1])
+            players_killed = []
 
-            #FIXME todos esses caras tem que validar se não existe algum obstaculo
-            for i in range(bomb.power):
-                x = bomb.x + i
-                y = bomb.y
-                #FIXME validar tamanho do mapa pra nao estourar array
-                explosions.append(Explosion(x, y))
-                _map[y][x].append(explosions[-1])
+            players_killed.extend(create_explosion(_map, x, y))
 
+            #FIXME: todos esses caras tem que validar se não existe algum obstaculo
             for i in range(bomb.power):
-                x = bomb.x - i
-                y = bomb.y
-                if x < 0:
+                try:
+                    players_killed.extend(create_explosion(_map, bomb.x + i, bomb.y))
+                except ValueError:
                     break
-                explosions.append(Explosion(x, y))
-                _map[y][x].append(explosions[-1])
 
             for i in range(bomb.power):
-                x = bomb.x
-                y = bomb.y + i
-                #FIXME validar tamanho do mapa pra nao estourar array
-                explosions.append(Explosion(x, y))
-                _map[y][x].append(explosions[-1])
-
-            for i in range(bomb.power):
-                x = bomb.x
-                y = bomb.y - i
-                if y < 0:
+                try:
+                    players_killed.extend(create_explosion(_map, bomb.x - i, bomb.y))
+                except ValueError:
                     break
-                explosions.append(Explosion(x, y))
-                _map[y][x].append(explosions[-1])
 
+            for i in range(bomb.power):
+                try:
+                    players_killed.extend(create_explosion(_map, bomb.x, bomb.y + i))
+                except ValueError:
+                    break
+
+            for i in range(bomb.power):
+                try:
+                    players_killed.extend(create_explosion(_map, bomb.x, bomb.y - i))
+                except ValueError:
+                    break
+
+            for player in players_killed:
+                players.remove(player)
+
+def update_explosions(_map):
     auxiliar_explosions = explosions[:]
     for explosion in auxiliar_explosions:
         explosion.update()
@@ -219,6 +233,27 @@ while True:
             y = explosion.y
             _map[y][x].remove(explosion)
 
-    input('press any button to advance to the next turn...')
+while True:
 
+    #TODO: this should be an loop throw all bot samples
+    bot_sample1.execute_command(_map) # FIXME: i cant send the actually _map object, i need to clone it
+    command = bot_sample1._last_movement
+    bot_sample1._last_movement = NONE
 
+    try:
+        if command in [UP, DOWN, LEFT, RIGHT]:
+            movements(_map, command, players[0])
+        if command in [BOMB]:
+            plant_bombs(_map, command, players[0])
+
+    except IndexError:
+        pass
+
+    update_bombs(_map)
+    update_explosions(_map)
+
+    draw_map()
+
+    if len(players) == 1:
+        print(f'{players[0].name} venceu!')
+        exit()
