@@ -12,7 +12,9 @@ class Wall(object):
     pass
 
 class Block(object):
-    pass
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
 class Player(object):
     def __init__(self, name, x, y):
@@ -38,9 +40,6 @@ class Explosion(object):
 
     def update(self):
         self.remaning_time -= 1
-
-bombs = []
-explosions = []
 
 def build_map():
 
@@ -68,13 +67,16 @@ def build_map():
 
 _map = build_map()
 
+# FIXME: é mais facil usar essas variaveis pra fazer o mapa sempre ficar desenhando tudo em cada loop do que ter que sempre ficar arrumando em dois lugares
+bombs = []
+explosions = []
+blocks = []
 players = [Player('1', 0, 0), Player('2', len(_map[0]) - 1, len(_map) - 1)] #TODO: essas posicoes nao deveriam ser fixas
 
 for player in players:
     _map[player.y][player.x].append(player)
 
 def remove_block_on(_map, x, y):
-
     if x < 0:
         return
 
@@ -84,6 +86,7 @@ def remove_block_on(_map, x, y):
     try:
         for _object in _map[y, x]:
             if isinstance(_object, Block):
+                blocks.remove(_object)
                 _map[y, x].remove(_object)
                 break
     except IndexError:
@@ -94,7 +97,8 @@ def put_blocks(_map):
         for y in range(len(_map[x])):
             if len(_map[x][y]) == 0:
                 if random.randint(0, 99) < 100:
-                    _map[x][y].append(Block())
+                    blocks.append(Block(x, y))
+                    _map[x][y].append(blocks[-1])
 
     for player in players:
         remove_block_on(_map, player.x, player.y)
@@ -188,6 +192,7 @@ def create_explosion(_map, x, y):
     if y < 0:
         raise ValueError('y menor que zero')
 
+    #TODO: talvez essas logicas deveriam estar dentro do objeto explosion?
     try:
         for _object in _map[y][x]:
             if isinstance(_object, Wall):
@@ -195,6 +200,12 @@ def create_explosion(_map, x, y):
 
             if isinstance(_object, Player):
                 players_killed.append(_object)
+
+            if isinstance(_object, Block):
+                remove_block_on(_map, x, y)
+                explosions.append(Explosion(x, y))
+                _map[y][x].append(explosions[-1])
+                raise ValueError('acertou um bloco')
     except IndexError:
         raise ValueError('explosao foi pra fora do mapa')
 
