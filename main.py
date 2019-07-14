@@ -72,6 +72,7 @@ def build_map():
 _map = build_map()
 
 # FIXME: é mais facil usar essas variaveis pra fazer o mapa sempre ficar desenhando tudo em cada loop do que ter que sempre ficar arrumando em dois lugares
+# TODO: ao inves de uma lista isso poderia ser um objeto de grupo com os metodos de update dentro disso
 bombs = []
 explosions = []
 blocks = []
