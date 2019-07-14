@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-TURN_BY_TURN_MODE = False
+TURN_BY_TURN_MODE = True
 
 NONE = 0
 RIGHT = 1
@@ -36,6 +36,20 @@ class Bomb(object):
     def update(self):
         self.remaning_time -= 1
 
+        if self.remaning_time == 0:
+            bombs.remove(self)
+
+            players_killed = []
+
+            players_killed.extend(create_explosion(_map, self.x, self.y, self.owner))
+            explosions_goint_to(self, 1, 0)
+            explosions_goint_to(self, -1, 0)
+            explosions_goint_to(self, 0, 1)
+            explosions_goint_to(self, 0, -1)
+
+            for player in players_killed:
+                players.remove(player)
+
 class Explosion(object):
     def __init__(self, x, y):
         self.x = x
@@ -44,6 +58,28 @@ class Explosion(object):
 
     def update(self):
         self.remaning_time -= 1
+        if self.remaning_time == 0:
+            explosions.remove(self)
+
+class Group(list):
+    def __init__(self, _map, iterable=None):
+        self._map = _map
+        if iterable is None:
+            iterable = []
+        return super().__init__(iterable)
+
+    def update(self):
+        auxiliar_list = self[:]
+        for _object in auxiliar_list:
+            _object.update()
+
+    def append(self, value):
+        self._map[value.y][value.x].append(value)
+        return super().append(value)
+
+    def remove(self, value):
+        self._map[value.y][value.x].remove(value)
+        return super().remove(value)
 
 def build_map():
 
@@ -73,8 +109,8 @@ _map = build_map()
 
 # FIXME: é mais facil usar essas variaveis pra fazer o mapa sempre ficar desenhando tudo em cada loop do que ter que sempre ficar arrumando em dois lugares
 # TODO: ao inves de uma lista isso poderia ser um objeto de grupo com os metodos de update dentro disso
-bombs = []
-explosions = []
+bombs = Group(_map)
+explosions = Group(_map)
 blocks = []
 #TODO: player deveria ser um jogador. e um jogador poderia ter multiplos bots
 players = [Player('1', 0, 0), Player('2', len(_map[0]) - 1, len(_map) - 1)] #TODO: essas posicoes nao deveriam ser fixas
@@ -165,7 +201,6 @@ def plant_bombs(_map, movement, player):
     if movement == BOMB:
         bombs.append(Bomb(x, y, player))
         player.points += 1
-        _map[y][x].append(bombs[-1])
 
 def draw_map(turn):
     print('-' * 55)
@@ -216,14 +251,12 @@ def create_explosion(_map, x, y, owner):
             if isinstance(_object, Block):
                 remove_block_on(_map, x, y)
                 explosions.append(Explosion(x, y))
-                _map[y][x].append(explosions[-1])
                 owner.points += 2
                 raise ValueError('acertou um bloco')
     except IndexError:
         raise ValueError('explosao foi pra fora do mapa')
 
     explosions.append(Explosion(x, y))
-    _map[y][x].append(explosions[-1])
 
     return players_killed
 
@@ -235,38 +268,6 @@ def explosions_goint_to(bomb, x=0, y=0,):
         except ValueError:
             break
     return players_killed
-
-def update_bombs(_map):
-    auxiliar_bombs = bombs[:]
-    for bomb in auxiliar_bombs:
-        bomb: Bomb
-        bomb.update()
-        if bomb.remaning_time == 0:
-            bombs.remove(bomb)
-            x = bomb.x
-            y = bomb.y
-            _map[y][x].remove(bomb)
-
-            players_killed = []
-
-            players_killed.extend(create_explosion(_map, bomb.x, bomb.y, bomb.owner))
-            explosions_goint_to(bomb, 1, 0)
-            explosions_goint_to(bomb, -1, 0)
-            explosions_goint_to(bomb, 0, 1)
-            explosions_goint_to(bomb, 0, -1)
-
-            for player in players_killed:
-                players.remove(player)
-
-def update_explosions(_map):
-    auxiliar_explosions = explosions[:]
-    for explosion in auxiliar_explosions:
-        explosion.update()
-        if explosion.remaning_time == 0:
-            explosions.remove(explosion)
-            x = explosion.x
-            y = explosion.y
-            _map[y][x].remove(explosion)
 
 if __name__ == "__main__":
 
@@ -289,8 +290,8 @@ if __name__ == "__main__":
         except IndexError:
             pass
 
-        update_bombs(_map)
-        update_explosions(_map)
+        bombs.update()
+        explosions.update()
 
         draw_map(turn)
 
