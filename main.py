@@ -18,7 +18,7 @@ class Block(object):
         self.x = x
         self.y = y
 
-class Player(object):
+class Bot(object):
     def __init__(self, name, x, y):
         self.name = name
         self.x = x
@@ -39,16 +39,17 @@ class Bomb(object):
         if self.remaning_time == 0:
             bombs.remove(self)
 
-            players_killed = []
+            bots_killed = []
 
-            players_killed.extend(create_explosion(_map, self.x, self.y, self.owner))
+            bots_killed.extend(create_explosion(_map, self.x, self.y, self.owner))
             explosions_goint_to(self, 1, 0)
             explosions_goint_to(self, -1, 0)
             explosions_goint_to(self, 0, 1)
             explosions_goint_to(self, 0, -1)
 
-            for player in players_killed:
-                players.remove(player)
+            for bot in bots_killed:
+                bots.remove(bot)
+                #FIXME: tirar do mapa quando isso acontecer
 
 class Explosion(object):
     def __init__(self, x, y):
@@ -113,10 +114,11 @@ bombs = Group(_map)
 explosions = Group(_map)
 blocks = Group(_map)
 #TODO: player deveria ser um jogador. e um jogador poderia ter multiplos bots
-players = [Player('1', 0, 0), Player('2', len(_map[0]) - 1, len(_map) - 1)] #TODO: essas posicoes nao deveriam ser fixas
+bots = [Bot('1', 0, 0), Bot('2', len(_map[0]) - 1, len(_map) - 1)] #TODO: essas posicoes nao deveriam ser fixas
 
-for player in players:
-    _map[player.y][player.x].append(player)
+#TODO: mandar isso pra dentro do objeto Bot
+for bot in bots:
+    _map[bot.y][bot.x].append(bot)
 
 def remove_block_on(_map, x, y):
     if x < 0:
@@ -140,24 +142,24 @@ def put_blocks(_map):
                 if random.randint(0, 99) < 100:
                     blocks.append(Block(x, y))
 
-    for player in players:
-        remove_block_on(_map, player.x, player.y)
-        remove_block_on(_map, player.x-1, player.y)
-        remove_block_on(_map, player.x+1, player.y)
-        remove_block_on(_map, player.x, player.y-1)
-        remove_block_on(_map, player.x, player.y+1)
+    for bot in bots:
+        remove_block_on(_map, bot.x, bot.y)
+        remove_block_on(_map, bot.x-1, bot.y)
+        remove_block_on(_map, bot.x+1, bot.y)
+        remove_block_on(_map, bot.x, bot.y-1)
+        remove_block_on(_map, bot.x, bot.y+1)
 
 from bot_sample import BotSample
 
 bot_sample1 = BotSample()
 bot_sample1.start()
 
-def get_player_location(_map, player):
+def get_bot_location(_map, bot):
     found = False
 
     for y in range(len(_map)):
         for x in range(len(_map[y])):
-            if player in _map[y][x]:
+            if bot in _map[y][x]:
                 found = True
                 break
         
@@ -166,10 +168,10 @@ def get_player_location(_map, player):
 
     return x, y
 
-def movements(_map, movement, player):
-    x, y = get_player_location(_map, player)
+def movements(_map, movement, bot):
+    x, y = get_bot_location(_map, bot)
 
-    #FIXME: alterar para mudar o valor no objeto player tambem
+    #FIXME: alterar para mudar o valor no objeto bot tambem
     if movement == DOWN:
         dest_x = x
         dest_y = y + 1
@@ -190,15 +192,16 @@ def movements(_map, movement, player):
         if isinstance(_object, (Bomb, Wall, Block)):
             return
 
-    _map[dest_y][dest_x].append(player)
-    _map[y][x].remove(player)
+    _map[dest_y][dest_x].append(bot)
+    _map[y][x].remove(bot)
 
-def plant_bombs(_map, movement, player):
-    x, y = get_player_location(_map, player)
+def plant_bombs(_map, movement, bot):
+    x, y = get_bot_location(_map, bot)
 
     if movement == BOMB:
-        bombs.append(Bomb(x, y, player))
-        player.points += 1
+        bombs.append(Bomb(x, y, bot))
+        #TODO: aumentar o ponto do player e não do bot
+        bot.points += 1
 
 def draw_map(turn):
     print('-' * 55)
@@ -213,7 +216,7 @@ def draw_map(turn):
             else:
                 if isinstance(row[0], Explosion):
                     illustrated_map[-1].append('@')
-                if isinstance(row[0], Player):
+                if isinstance(row[0], Bot):
                     illustrated_map[-1].append(row[0].name)
                 if isinstance(row[0], Wall):
                     illustrated_map[-1].append('X')
@@ -224,13 +227,14 @@ def draw_map(turn):
                     
 
     print(np.array(illustrated_map))
-    for player in players:
-        print(f'Score player {player.name}: {player.points}')
+    for bot in bots:
+        #TODO: apresentar pontuacao do player. Nao do bot
+        print(f'Score player {bot.name}: {bot.points}')
     if TURN_BY_TURN_MODE:
         input('press any button to advance to the next turn...')
     
 def create_explosion(_map, x, y, owner):
-    players_killed = []
+    bots_killed = []
 
     if x < 0:
         raise ValueError('x menor que zero')
@@ -243,8 +247,8 @@ def create_explosion(_map, x, y, owner):
             if isinstance(_object, Wall):
                 raise ValueError('tem uma parede ai irmao')
 
-            if isinstance(_object, Player):
-                players_killed.append(_object)
+            if isinstance(_object, Bot):
+                bots_killed.append(_object)
 
             if isinstance(_object, Block):
                 remove_block_on(_map, x, y)
@@ -256,16 +260,16 @@ def create_explosion(_map, x, y, owner):
 
     explosions.append(Explosion(x, y))
 
-    return players_killed
+    return bots_killed
 
 def explosions_goint_to(bomb, x=0, y=0,):
-    players_killed = []
+    bots_killed = []
     for i in range(1, bomb.power):
         try:
-            players_killed.extend(create_explosion(_map, bomb.x + (i * x), bomb.y + (i * y), bomb.owner))
+            bots_killed.extend(create_explosion(_map, bomb.x + (i * x), bomb.y + (i * y), bomb.owner))
         except ValueError:
             break
-    return players_killed
+    return bots_killed
 
 if __name__ == "__main__":
 
@@ -281,9 +285,9 @@ if __name__ == "__main__":
 
         try:
             if command in [UP, DOWN, LEFT, RIGHT]:
-                movements(_map, command, players[0])
+                movements(_map, command, bots[0])
             if command in [BOMB]:
-                plant_bombs(_map, command, players[0])
+                plant_bombs(_map, command, bots[0])
 
         except IndexError:
             pass
@@ -295,6 +299,6 @@ if __name__ == "__main__":
 
         #FIXME: Uma vez que um player tiver multiplos bots, verificar se todos bots vivos são do mesmo player
         #FIXME: Existe a possibilidade de todos bots terem morrido no mesmo momento. 0 bots vivos
-        if len(players) == 1:
-            print(f'{players[0].name} venceu!')
+        if len(bots) == 1:
+            print(f'{bots[0].name} venceu!')
             exit()
