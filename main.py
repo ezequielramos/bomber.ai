@@ -75,6 +75,7 @@ _map = build_map()
 bombs = []
 explosions = []
 blocks = []
+#TODO: player deveria ser um jogador. e um jogador poderia ter multiplos bots
 players = [Player('1', 0, 0), Player('2', len(_map[0]) - 1, len(_map) - 1)] #TODO: essas posicoes nao deveriam ser fixas
 
 for player in players:
@@ -292,6 +293,8 @@ if __name__ == "__main__":
 
         draw_map(turn)
 
+        #FIXME: Uma vez que um player tiver multiplos bots, verificar se todos bots vivos são do mesmo player
+        #FIXME: Existe a possibilidade de todos bots terem morrido no mesmo momento. 0 bots vivos
         if len(players) == 1:
             print(f'{players[0].name} venceu!')
             exit()
