@@ -111,7 +111,7 @@ _map = build_map()
 # TODO: ao inves de uma lista isso poderia ser um objeto de grupo com os metodos de update dentro disso
 bombs = Group(_map)
 explosions = Group(_map)
-blocks = []
+blocks = Group(_map)
 #TODO: player deveria ser um jogador. e um jogador poderia ter multiplos bots
 players = [Player('1', 0, 0), Player('2', len(_map[0]) - 1, len(_map) - 1)] #TODO: essas posicoes nao deveriam ser fixas
 
@@ -129,18 +129,16 @@ def remove_block_on(_map, x, y):
         for _object in _map[y, x]:
             if isinstance(_object, Block):
                 blocks.remove(_object)
-                _map[y, x].remove(_object)
                 break
     except IndexError:
         pass
 
 def put_blocks(_map):
-    for x in range(len(_map)):
-        for y in range(len(_map[x])):
-            if len(_map[x][y]) == 0:
+    for y in range(len(_map)):
+        for x in range(len(_map[y])):
+            if len(_map[y][x]) == 0:
                 if random.randint(0, 99) < 100:
                     blocks.append(Block(x, y))
-                    _map[x][y].append(blocks[-1])
 
     for player in players:
         remove_block_on(_map, player.x, player.y)
