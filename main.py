@@ -84,7 +84,7 @@ engine = Engine()
 engine.build_map()
 
 #TODO: player deveria ser um jogador. e um jogador poderia ter multiplos bots
-engine.bots.extend([Bot('1', 0, 0), Bot('2', len(engine.map[0]) - 1, len(engine.map) - 1)]) #TODO: essas posicoes nao deveriam ser fixas
+engine.bots.extend([Bot('1', 0, 0, engine), Bot('2', len(engine.map[0]) - 1, len(engine.map) - 1, engine)]) #TODO: essas posicoes nao deveriam ser fixas
 
 #TODO: mandar isso pra dentro do objeto Bot
 for bot in engine.bots:
@@ -95,6 +95,7 @@ from bot_sample import BotSample
 bot_sample1 = BotSample()
 bot_sample1.start()
 
+#FIXME: this shouldn't exist
 def get_bot_location(_map, bot):
     found = False
 
@@ -108,34 +109,6 @@ def get_bot_location(_map, bot):
             break
 
     return x, y
-
-def movements(_map, movement, bot):
-    #TODO: this must go to the bot object
-    x, y = get_bot_location(_map, bot)
-
-    #FIXME: alterar para mudar o valor no objeto bot tambem
-    if movement == DOWN:
-        dest_x = x
-        dest_y = y + 1
-    if movement == UP:
-        dest_x = x
-        dest_y = y - 1
-    if movement == LEFT:
-        dest_x = x - 1
-        dest_y = y
-    if movement == RIGHT:
-        dest_x = x + 1
-        dest_y = y
-
-    if dest_y < 0 or dest_x < 0:
-        return
-
-    for _object in _map[dest_y][dest_x]:
-        if isinstance(_object, (Bomb, Wall, Block)):
-            return
-
-    _map[dest_y][dest_x].append(bot)
-    _map[y][x].remove(bot)
 
 def plant_bombs(_map, movement, bot):
     #TODO: this must go to the bot object
@@ -160,7 +133,9 @@ if __name__ == "__main__":
 
         try:
             if command in [UP, DOWN, LEFT, RIGHT]:
-                movements(engine.map, command, engine.bots[0])
+                bot: Bot = engine.bots[0]
+                bot.move(command)
+                # movements(engine.map, command, engine.bots[0])
             if command in [BOMB]:
                 plant_bombs(engine.map, command, engine.bots[0])
 
