@@ -12,7 +12,7 @@ class Bot(object):
         self.name = name
         self.x = x
         self.y = y
-        self.points = 0
+        self.points = 0 # FIXME: this should be on player object
         self.engine = engine
 
     def move(self, command):
@@ -42,3 +42,10 @@ class Bot(object):
 
         self.x = dest_x
         self.y = dest_y
+
+    def plant_bombs(self, command):
+
+        if command == BOMB:
+            self.engine.bombs.append(objects.bomb.Bomb(self.x, self.y, self, self.engine.bombs, self.engine.map, self.engine.explosions, self.engine.bots, self.engine.blocks))
+            #TODO: aumentar o ponto do player e não do bot
+            self.points += 1

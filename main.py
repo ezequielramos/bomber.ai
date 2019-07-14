@@ -94,31 +94,7 @@ from bot_sample import BotSample
 
 bot_sample1 = BotSample()
 bot_sample1.start()
-
-#FIXME: this shouldn't exist
-def get_bot_location(_map, bot):
-    found = False
-
-    for y in range(len(_map)):
-        for x in range(len(_map[y])):
-            if bot in _map[y][x]:
-                found = True
-                break
-        
-        if found:
-            break
-
-    return x, y
-
-def plant_bombs(_map, movement, bot):
-    #TODO: this must go to the bot object
-    x, y = get_bot_location(_map, bot)
-
-    if movement == BOMB:
-        engine.bombs.append(Bomb(x, y, bot, engine.bombs, _map, engine.explosions, engine.bots, engine.blocks))
-        #TODO: aumentar o ponto do player e não do bot
-        bot.points += 1
-   
+  
 if __name__ == "__main__":
 
     put_blocks(engine)
@@ -137,7 +113,7 @@ if __name__ == "__main__":
                 bot.move(command)
                 # movements(engine.map, command, engine.bots[0])
             if command in [BOMB]:
-                plant_bombs(engine.map, command, engine.bots[0])
+                bot.plant_bombs(command)
 
         except IndexError:
             pass
