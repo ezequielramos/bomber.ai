@@ -1,6 +1,6 @@
 class Group(list):
-    def __init__(self, _map, iterable=None):
-        self._map = _map
+    def __init__(self, engine, iterable=None):
+        self.engine = engine
         if iterable is None:
             iterable = []
         return super().__init__(iterable)
@@ -11,9 +11,9 @@ class Group(list):
             _object.update()
 
     def append(self, value):
-        self._map[value.y][value.x].append(value)
+        self.engine.map[value.y][value.x].append(value)
         return super().append(value)
 
     def remove(self, value):
-        self._map[value.y][value.x].remove(value)
+        self.engine.map[value.y][value.x].remove(value)
         return super().remove(value)
