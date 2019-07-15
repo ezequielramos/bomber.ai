@@ -7,6 +7,7 @@ from objects.bomb import Bomb
 from objects.explosion import Explosion, create_explosion
 from objects.bot import Bot
 from objects.group import Group
+from objects.player import Player
 
 TURN_BY_TURN_MODE = True
 
@@ -25,6 +26,7 @@ class Engine(object):
         self.blocks = Group(self)
         self.bombs = Group(self)
         self.bots = []
+        self.players = []
 
     def build_map(self):
 
@@ -64,7 +66,7 @@ class Engine(object):
                     if isinstance(row[0], Explosion):
                         illustrated_map[-1].append('@')
                     if isinstance(row[0], Bot):
-                        illustrated_map[-1].append(row[0].name)
+                        illustrated_map[-1].append(row[0].player.name)
                     if isinstance(row[0], Wall):
                         illustrated_map[-1].append('X')
                     if isinstance(row[0], Bomb):
@@ -74,17 +76,19 @@ class Engine(object):
                         
 
         print(np.array(illustrated_map))
-        for bot in self.bots:
+        for player in self.players:
             #TODO: apresentar pontuacao do player. Nao do bot
-            print(f'Score player {bot.name}: {bot.points}')
+            print(f'Score player {player.name}: {player.points}')
         if TURN_BY_TURN_MODE:
             input('press any button to advance to the next turn...')
 
 engine = Engine()
 engine.build_map()
 
+engine.players.extend([Player('1'), Player('2')])
+
 #TODO: player deveria ser um jogador. e um jogador poderia ter multiplos bots
-engine.bots.extend([Bot('1', 0, 0, engine), Bot('2', len(engine.map[0]) - 1, len(engine.map) - 1, engine)]) #TODO: essas posicoes nao deveriam ser fixas
+engine.bots.extend([Bot(0, 0, engine, engine.players[0]), Bot(len(engine.map[0]) - 1, len(engine.map) - 1, engine, engine.players[1])]) #TODO: essas posicoes nao deveriam ser fixas
 
 #TODO: mandar isso pra dentro do objeto Bot
 for bot in engine.bots:
@@ -126,5 +130,5 @@ if __name__ == "__main__":
         #FIXME: Uma vez que um player tiver multiplos bots, verificar se todos bots vivos são do mesmo player
         #FIXME: Existe a possibilidade de todos bots terem morrido no mesmo momento. 0 bots vivos
         if len(engine.bots) == 1:
-            print(f'{engine.bots[0].name} venceu!')
+            print(f'Player {engine.bots[0].player.name} won!')
             exit()

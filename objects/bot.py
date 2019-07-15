@@ -8,12 +8,11 @@ DOWN = 4
 BOMB = 5
 
 class Bot(object):
-    def __init__(self, name, x, y, engine):
-        self.name = name
+    def __init__(self, x, y, engine, player):
         self.x = x
         self.y = y
-        self.points = 0 # FIXME: this should be on player object
         self.engine = engine
+        self.player = player
 
     def move(self, command):
 
@@ -49,4 +48,4 @@ class Bot(object):
             print(self.x, self.y)
             self.engine.bombs.append(objects.bomb.Bomb(self.x, self.y, self, self.engine.bombs, self.engine.map, self.engine.explosions, self.engine.bots, self.engine.blocks))
             #TODO: aumentar o ponto do player e não do bot
-            self.points += 1
+            self.player.points += 1

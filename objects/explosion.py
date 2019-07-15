@@ -32,7 +32,7 @@ def create_explosion(_map, x, y, owner, explosions, blocks):
             if isinstance(_object, objects.block.Block):
                 objects.block.remove_block_on(_map, blocks, x, y)
                 explosions.append(Explosion(x, y, explosions))
-                owner.points += 2
+                owner.player.points += 2
                 raise ValueError('acertou um bloco')
 
             if isinstance(_object, objects.bomb.Bomb):
