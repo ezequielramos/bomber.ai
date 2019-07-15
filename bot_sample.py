@@ -10,45 +10,45 @@ class BotSample(object):
     def __init__(self):
         self._last_movement = NONE
 
-    def goDown(self):
+    def go_down(self):
         self._last_movement = DOWN
 
-    def goRight(self):
+    def go_right(self):
         self._last_movement = RIGHT
 
-    def goUp(self):
+    def go_up(self):
         self._last_movement = UP
 
-    def goLeft(self):
+    def go_left(self):
         self._last_movement = LEFT
     
-    def putBomb(self):
+    def put_bomb(self):
         self._last_movement = BOMB
 
     def start(self):
         self.actions = []
-        self.actions.append(self.goDown)
-        self.actions.append(self.putBomb)
-        self.actions.append(self.goUp)
-        self.actions.append(self.putBomb)
-        self.actions.append(self.goRight)
-        self.actions.append(self.goRight)
-        self.actions.append(self.goRight)
-        self.actions.append(self.goRight)
-        self.actions.append(self.goRight)
-        self.actions.append(self.goLeft)
+        self.actions.append(self.go_down)
+        self.actions.append(self.put_bomb)
+        self.actions.append(self.go_up)
+        self.actions.append(self.put_bomb)
+        self.actions.append(self.go_right)
+        self.actions.append(self.go_right)
+        self.actions.append(self.go_right)
+        self.actions.append(self.go_right)
+        self.actions.append(self.go_right)
+        self.actions.append(self.go_left)
 
-        self.actions.append(self.goDown)
-        self.actions.append(self.goDown)
-        self.actions.append(self.putBomb)
-        self.actions.append(self.goUp)
-        self.actions.append(self.goUp)
-        self.actions.append(self.goRight)
-        self.actions.append(self.goRight)
-        self.actions.append(self.goRight)
-        self.actions.append(self.goRight)
-        self.actions.append(self.goRight)
-        self.actions.append(self.goLeft)
+        self.actions.append(self.go_down)
+        self.actions.append(self.go_down)
+        self.actions.append(self.put_bomb)
+        self.actions.append(self.go_up)
+        self.actions.append(self.go_up)
+        self.actions.append(self.go_right)
+        self.actions.append(self.go_right)
+        self.actions.append(self.go_right)
+        self.actions.append(self.go_right)
+        self.actions.append(self.go_right)
+        self.actions.append(self.go_left)
         
         self.action_step = -1
     

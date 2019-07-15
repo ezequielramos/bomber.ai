@@ -45,7 +45,12 @@ class Bot(object):
     def plant_bombs(self, command):
 
         if command == BOMB:
-            print(self.x, self.y)
-            self.engine.bombs.append(objects.bomb.Bomb(self.x, self.y, self, self.engine.bombs, self.engine.map, self.engine.explosions, self.engine.bots, self.engine.blocks))
-            #TODO: aumentar o ponto do player e não do bot
-            self.player.points += 1
+            bomb_quantity = 0
+            for bomb in self.engine.bombs:
+                if bomb.owner.player.name == self.player.name:
+                    bomb_quantity += 1
+
+            if bomb_quantity < self.player.bombs_limit:
+                self.engine.bombs.append(objects.bomb.Bomb(self.x, self.y, self, self.engine.bombs, self.engine.map, self.engine.explosions, self.engine.bots, self.engine.blocks))
+                #TODO: aumentar o ponto do player e não do bot
+                self.player.points += 1
