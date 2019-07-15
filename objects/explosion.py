@@ -1,6 +1,4 @@
-from objects.block import Block, remove_block_on
-from objects.wall import Wall
-from objects.bot import Bot
+import objects
 
 class Explosion(object):
     def __init__(self, x, y, group):
@@ -25,17 +23,22 @@ def create_explosion(_map, x, y, owner, explosions, blocks):
     #TODO: talvez essas logicas deveriam estar dentro do objeto explosion?
     try:
         for _object in _map[y][x]:
-            if isinstance(_object, Wall):
+            if isinstance(_object, objects.wall.Wall):
                 raise ValueError('tem uma parede ai irmao')
 
-            if isinstance(_object, Bot):
+            if isinstance(_object, objects.bot.Bot):
                 bots_killed.append(_object)
 
-            if isinstance(_object, Block):
-                remove_block_on(_map, blocks, x, y)
+            if isinstance(_object, objects.block.Block):
+                objects.block.remove_block_on(_map, blocks, x, y)
                 explosions.append(Explosion(x, y, explosions))
                 owner.points += 2
                 raise ValueError('acertou um bloco')
+
+            if isinstance(_object, objects.bomb.Bomb):
+                _object.explode()
+                raise ValueError('bateu numa outra bomba')
+
     except IndexError:
         raise ValueError('explosao foi pra fora do mapa')
 

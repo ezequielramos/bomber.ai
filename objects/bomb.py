@@ -12,23 +12,26 @@ class Bomb(object):
         self.explosions = explosions
         self.bots = bots
         self.blocks = blocks
+
+    def explode(self):
+        self.group.remove(self)
+
+        bots_killed = []
+
+        bots_killed.extend(create_explosion(self._map, self.x, self.y, self.owner, self.explosions, self.blocks))
+        bots_killed.extend(explosions_goint_to(self, 1, 0))
+        bots_killed.extend(explosions_goint_to(self, -1, 0))
+        bots_killed.extend(explosions_goint_to(self, 0, 1))
+        bots_killed.extend(explosions_goint_to(self, 0, -1))
+
+        for bot in bots_killed:
+            self.bots.remove(bot)
     
     def update(self):
         self.remaning_time -= 1
 
         if self.remaning_time == 0:
-            self.group.remove(self)
-
-            bots_killed = []
-
-            bots_killed.extend(create_explosion(self._map, self.x, self.y, self.owner, self.explosions, self.blocks))
-            bots_killed.extend(explosions_goint_to(self, 1, 0))
-            bots_killed.extend(explosions_goint_to(self, -1, 0))
-            bots_killed.extend(explosions_goint_to(self, 0, 1))
-            bots_killed.extend(explosions_goint_to(self, 0, -1))
-
-            for bot in bots_killed:
-                self.bots.remove(bot)
+            self.explode()
 
 def explosions_goint_to(bomb, x=0, y=0):
     bots_killed = []

@@ -27,9 +27,10 @@ class BotSample(object):
 
     def start(self):
         self.actions = []
-        self.actions.append(self.putBomb)
         self.actions.append(self.goDown)
+        self.actions.append(self.putBomb)
         self.actions.append(self.goUp)
+        self.actions.append(self.putBomb)
         self.actions.append(self.goRight)
         self.actions.append(self.goRight)
         self.actions.append(self.goRight)
