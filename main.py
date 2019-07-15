@@ -8,7 +8,7 @@ from objects.explosion import Explosion, create_explosion
 from objects.bot import Bot
 from objects.group import Group
 
-TURN_BY_TURN_MODE = False
+TURN_BY_TURN_MODE = True
 
 NONE = 0
 RIGHT = 1
@@ -108,8 +108,8 @@ if __name__ == "__main__":
         bot_sample1._last_movement = NONE
 
         try:
+            bot: Bot = engine.bots[0]
             if command in [UP, DOWN, LEFT, RIGHT]:
-                bot: Bot = engine.bots[0]
                 bot.move(command)
                 # movements(engine.map, command, engine.bots[0])
             if command in [BOMB]:

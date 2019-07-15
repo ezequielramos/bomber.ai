@@ -22,10 +22,10 @@ class Bomb(object):
             bots_killed = []
 
             bots_killed.extend(create_explosion(self._map, self.x, self.y, self.owner, self.explosions, self.blocks))
-            explosions_goint_to(self, 1, 0)
-            explosions_goint_to(self, -1, 0)
-            explosions_goint_to(self, 0, 1)
-            explosions_goint_to(self, 0, -1)
+            bots_killed.extend(explosions_goint_to(self, 1, 0))
+            bots_killed.extend(explosions_goint_to(self, -1, 0))
+            bots_killed.extend(explosions_goint_to(self, 0, 1))
+            bots_killed.extend(explosions_goint_to(self, 0, -1))
 
             for bot in bots_killed:
                 self.bots.remove(bot)
