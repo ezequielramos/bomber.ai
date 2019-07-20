@@ -7,6 +7,7 @@ UP = 3
 DOWN = 4
 BOMB = 5
 
+
 class Bot(object):
     def __init__(self, x, y, engine, player):
         self.x = x
@@ -33,7 +34,9 @@ class Bot(object):
             return
 
         for _object in self.engine.map[dest_y][dest_x]:
-            if isinstance(_object, (objects.bomb.Bomb, objects.wall.Wall, objects.block.Block)):
+            if isinstance(
+                _object, (objects.bomb.Bomb, objects.wall.Wall, objects.block.Block)
+            ):
                 return
 
         self.engine.map[dest_y][dest_x].append(self)
@@ -51,6 +54,17 @@ class Bot(object):
                     bomb_quantity += 1
 
             if bomb_quantity < self.player.bombs_limit:
-                self.engine.bombs.append(objects.bomb.Bomb(self.x, self.y, self, self.engine.bombs, self.engine.map, self.engine.explosions, self.engine.bots, self.engine.blocks))
-                #TODO: aumentar o ponto do player e não do bot
+                self.engine.bombs.append(
+                    objects.bomb.Bomb(
+                        self.x,
+                        self.y,
+                        self,
+                        self.engine.bombs,
+                        self.engine.map,
+                        self.engine.explosions,
+                        self.engine.bots,
+                        self.engine.blocks,
+                    )
+                )
+                # TODO: aumentar o ponto do player e não do bot
                 self.player.points += 1

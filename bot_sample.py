@@ -5,8 +5,8 @@ UP = 3
 DOWN = 4
 BOMB = 5
 
-class BotSample(object):
 
+class BotSample(object):
     def __init__(self):
         self._last_movement = NONE
 
@@ -21,7 +21,7 @@ class BotSample(object):
 
     def go_left(self):
         self._last_movement = LEFT
-    
+
     def put_bomb(self):
         self._last_movement = BOMB
 
@@ -49,24 +49,24 @@ class BotSample(object):
         self.actions.append(self.go_right)
         self.actions.append(self.go_right)
         self.actions.append(self.go_left)
-        
+
         self.action_step = -1
-    
-    def execute_command(self, object):
+
+    def execute_command(self, engine):
 
         if self.am_i_safe():
             self.action_step += 1
             if self.action_step >= len(self.actions):
                 self.action_step = 0
-            
+
             self.actions[self.action_step]()
-            
+
         else:
             # go to somewhere safe
             pass
 
         pass
-    
+
     def am_i_safe(self):
         return True
 

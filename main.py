@@ -18,6 +18,7 @@ UP = 3
 DOWN = 4
 BOMB = 5
 
+
 class Engine(object):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -53,44 +54,49 @@ class Engine(object):
         self.map = np.array(array_x)
 
     def draw_map(self, turn):
-        print('-' * 55)
-        print(f'Turn {turn}')
+        print("-" * 55)
+        print(f"Turn {turn}")
         illustrated_map = []
 
         for col in self.map:
             illustrated_map.append([])
             for row in col:
                 if len(row) == 0:
-                    illustrated_map[-1].append(' ')
+                    illustrated_map[-1].append(" ")
                 else:
                     if isinstance(row[0], Explosion):
-                        illustrated_map[-1].append('@')
+                        illustrated_map[-1].append("@")
                     if isinstance(row[0], Bot):
                         illustrated_map[-1].append(row[0].player.name)
                     if isinstance(row[0], Wall):
-                        illustrated_map[-1].append('X')
+                        illustrated_map[-1].append("X")
                     if isinstance(row[0], Bomb):
-                        illustrated_map[-1].append('o')
+                        illustrated_map[-1].append("o")
                     if isinstance(row[0], Block):
-                        illustrated_map[-1].append('+')
-                        
+                        illustrated_map[-1].append("+")
 
         print(np.array(illustrated_map))
         for player in self.players:
-            #TODO: apresentar pontuacao do player. Nao do bot
-            print(f'Score player {player.name}: {player.points}')
+            # TODO: apresentar pontuacao do player. Nao do bot
+            print(f"Score player {player.name}: {player.points}")
         if TURN_BY_TURN_MODE:
-            input('press any button to advance to the next turn...')
+            input("press any button to advance to the next turn...")
+
 
 engine = Engine()
 engine.build_map()
 
-engine.players.extend([Player('1'), Player('2')])
+engine.players.extend([Player("1"), Player("2")])
 
-#TODO: player deveria ser um jogador. e um jogador poderia ter multiplos bots
-engine.bots.extend([Bot(0, 0, engine, engine.players[0]), Bot(len(engine.map[0]) - 1, len(engine.map) - 1, engine, engine.players[1])]) #TODO: essas posicoes nao deveriam ser fixas
+# TODO: player deveria ser um jogador. e um jogador poderia ter multiplos bots
+engine.bots.extend(
+    [
+        Bot(0, 0, engine, engine.players[0]),
+        Bot(len(engine.map[0]) - 1, len(engine.map) - 1, engine, engine.players[1]),
+    ]
+)  # TODO: essas posicoes nao deveriam ser fixas
 
-#TODO: mandar isso pra dentro do objeto Bot
+# TODO: mandar isso pra dentro do objeto Bot
 for bot in engine.bots:
     engine.map[bot.y][bot.x].append(bot)
 
@@ -98,16 +104,18 @@ from bot_sample import BotSample
 
 bot_sample1 = BotSample()
 bot_sample1.start()
-  
+
 if __name__ == "__main__":
 
     put_blocks(engine)
     engine.draw_map(1)
 
-    for turn in range(2,501):
+    for turn in range(2, 501):
 
-        #TODO: this should be an loop throw all bot samples
-        bot_sample1.execute_command(engine.map) # FIXME: i cant send the actually _map object, i need to clone it
+        # TODO: this should be an loop throw all bot samples
+        bot_sample1.execute_command(
+            engine
+        )  # FIXME: i cant send the actually _map object, i need to clone it
         command = bot_sample1._last_movement
         bot_sample1._last_movement = NONE
 
@@ -127,8 +135,8 @@ if __name__ == "__main__":
 
         engine.draw_map(turn)
 
-        #FIXME: Uma vez que um player tiver multiplos bots, verificar se todos bots vivos são do mesmo player
-        #FIXME: Existe a possibilidade de todos bots terem morrido no mesmo momento. 0 bots vivos
+        # FIXME: Uma vez que um player tiver multiplos bots, verificar se todos bots vivos são do mesmo player
+        # FIXME: Existe a possibilidade de todos bots terem morrido no mesmo momento. 0 bots vivos
         if len(engine.bots) == 1:
-            print(f'Player {engine.bots[0].player.name} won!')
+            print(f"Player {engine.bots[0].player.name} won!")
             exit()
