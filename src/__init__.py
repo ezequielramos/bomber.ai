@@ -9,7 +9,7 @@ from src.objects.bot import Bot
 from src.objects.group import Group
 from src.objects.player import Player
 
-TURN_BY_TURN_MODE = True
+TURN_BY_TURN_MODE = False
 
 NONE = 0
 RIGHT = 1
@@ -17,6 +17,10 @@ LEFT = 2
 UP = 3
 DOWN = 4
 BOMB = 5
+
+from src.bot_sample import BotSample
+
+bot_sample1 = BotSample()
 
 
 class Engine(object):
@@ -28,6 +32,7 @@ class Engine(object):
         self.bombs = Group(self)
         self.bots = []
         self.players = []
+        self.turn = 1
 
     def build_map(self):
 
@@ -53,9 +58,9 @@ class Engine(object):
 
         self.map = np.array(array_x)
 
-    def draw_map(self, turn):
+    def draw_map(self):
         print("-" * 55)
-        print(f"Turn {turn}")
+        print(f"Turn {self.turn}")
         illustrated_map = []
 
         for col in self.map:
@@ -82,25 +87,57 @@ class Engine(object):
         if TURN_BY_TURN_MODE:
             input("press any button to advance to the next turn...")
 
+    def next_turn(self):
+        self.turn += 1
 
-engine = Engine()
-engine.build_map()
+        # TODO: this should be an loop throw all bot samples
+        bot_sample1.execute_command(
+            self
+        )  # FIXME: i cant send the actually _map object, i need to clone it
+        command = bot_sample1._last_movement
+        bot_sample1._last_movement = NONE
 
-engine.players.extend([Player("1"), Player("2")])
+        try:
+            bot: Bot = self.bots[0]
+            if command in [UP, DOWN, LEFT, RIGHT]:
+                bot.move(command)
+                # movements(self.map, command, self.bots[0])
+            if command in [BOMB]:
+                bot.plant_bombs(command)
 
-# TODO: player deveria ser um jogador. e um jogador poderia ter multiplos bots
-engine.bots.extend(
-    [
-        Bot(0, 0, engine, engine.players[0]),
-        Bot(len(engine.map[0]) - 1, len(engine.map) - 1, engine, engine.players[1]),
-    ]
-)  # TODO: essas posicoes nao deveriam ser fixas
+        except IndexError:
+            pass
 
-# TODO: mandar isso pra dentro do objeto Bot
-for bot in engine.bots:
-    engine.map[bot.y][bot.x].append(bot)
+        self.bombs.update()
+        self.explosions.update()
 
-from src.bot_sample import BotSample
+        self.draw_map()
 
-bot_sample1 = BotSample()
-bot_sample1.start()
+        # FIXME: Uma vez que um player tiver multiplos bots, verificar se todos bots vivos são do mesmo player
+        # FIXME: Existe a possibilidade de todos bots terem morrido no mesmo momento. 0 bots vivos
+        if len(self.bots) == 1:
+            print(f"Player {self.bots[0].player.name} won!")
+            exit()
+
+    def start_game(self):
+        # FIXME: i dont want to build map, generate players and bots on start game
+        self.build_map()
+
+        self.players.extend([Player("1"), Player("2")])
+
+        # TODO: player deveria ser um jogador. e um jogador poderia ter multiplos bots
+        self.bots.extend(
+            [
+                Bot(0, 0, self, self.players[0]),
+                Bot(len(self.map[0]) - 1, len(self.map) - 1, self, self.players[1]),
+            ]
+        )  # TODO: essas posicoes nao deveriam ser fixas
+
+        # TODO: mandar isso pra dentro do objeto Bot
+        for bot in self.bots:
+            self.map[bot.y][bot.x].append(bot)
+
+        bot_sample1.start()
+
+        put_blocks(self)
+        self.draw_map()
