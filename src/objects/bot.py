@@ -1,4 +1,4 @@
-import objects
+import src.objects as objects
 
 NONE = 0
 RIGHT = 1

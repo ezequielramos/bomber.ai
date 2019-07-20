@@ -1,13 +1,13 @@
 import numpy as np
 import random
 
-from objects.wall import Wall
-from objects.block import Block, remove_block_on, put_blocks
-from objects.bomb import Bomb
-from objects.explosion import Explosion, create_explosion
-from objects.bot import Bot
-from objects.group import Group
-from objects.player import Player
+from src.objects.wall import Wall
+from src.objects.block import Block, remove_block_on, put_blocks
+from src.objects.bomb import Bomb
+from src.objects.explosion import Explosion, create_explosion
+from src.objects.bot import Bot
+from src.objects.group import Group
+from src.objects.player import Player
 
 TURN_BY_TURN_MODE = True
 
@@ -100,43 +100,7 @@ engine.bots.extend(
 for bot in engine.bots:
     engine.map[bot.y][bot.x].append(bot)
 
-from bot_sample import BotSample
+from src.bot_sample import BotSample
 
 bot_sample1 = BotSample()
 bot_sample1.start()
-
-if __name__ == "__main__":
-
-    put_blocks(engine)
-    engine.draw_map(1)
-
-    for turn in range(2, 501):
-
-        # TODO: this should be an loop throw all bot samples
-        bot_sample1.execute_command(
-            engine
-        )  # FIXME: i cant send the actually _map object, i need to clone it
-        command = bot_sample1._last_movement
-        bot_sample1._last_movement = NONE
-
-        try:
-            bot: Bot = engine.bots[0]
-            if command in [UP, DOWN, LEFT, RIGHT]:
-                bot.move(command)
-                # movements(engine.map, command, engine.bots[0])
-            if command in [BOMB]:
-                bot.plant_bombs(command)
-
-        except IndexError:
-            pass
-
-        engine.bombs.update()
-        engine.explosions.update()
-
-        engine.draw_map(turn)
-
-        # FIXME: Uma vez que um player tiver multiplos bots, verificar se todos bots vivos são do mesmo player
-        # FIXME: Existe a possibilidade de todos bots terem morrido no mesmo momento. 0 bots vivos
-        if len(engine.bots) == 1:
-            print(f"Player {engine.bots[0].player.name} won!")
-            exit()

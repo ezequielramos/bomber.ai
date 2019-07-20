@@ -1,4 +1,4 @@
-from objects.explosion import Explosion, create_explosion
+from src.objects.explosion import Explosion, create_explosion
 
 
 class Bomb(object):

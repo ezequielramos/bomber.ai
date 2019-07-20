@@ -1,4 +1,4 @@
-import objects
+import src.objects as objects
 
 
 class Explosion(object):
