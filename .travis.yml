@@ -1,0 +1,12 @@
+branches:
+  only:
+  - master
+language: python
+python:
+  - "3.7.3"
+install:
+  - "pip install -r requirements.txt"
+script:
+    pytest
+after_success:
+  - COVERALLS_REPO_TOKEN=1r2XogC3b7VMPDeVpcM4SR09OKAugVY3R coveralls

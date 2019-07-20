@@ -1,5 +1,10 @@
 # bomber.ai
 
+[![Travis](https://api.travis-ci.com/ezequielramos/bomber.ai.svg?branch=master)](https://travis-ci.com/ezequielramos/bomber.ai)
+[![Coverage Status](https://coveralls.io/repos/github/ezequielramos/bomber.ai/badge.svg?branch=master)](https://coveralls.io/github/ezequielramos/bomber.ai?branch=master)
+[![Python Version](https://img.shields.io/badge/python-3.7.3-blue.svg)](https://www.python.org/downloads/release/python-373/)
+
+
 - servidor manda informações de:4
   - mapa
   - posição dos bomber.ai
