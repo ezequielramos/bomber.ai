@@ -1,3 +1,5 @@
+from typing import List, Callable
+
 NONE = 0
 RIGHT = 1
 LEFT = 2
@@ -8,63 +10,44 @@ BOMB = 5
 
 class BotSample(object):
     def __init__(self):
+        self.action_step = 0
         self._last_movement = NONE
 
-    def go_down(self):
+    def go_down(self, is_macro=False):
+        if not is_macro:
+            self.action_step = 0
         self._last_movement = DOWN
 
-    def go_right(self):
+    def go_right(self, is_macro=False):
+        if not is_macro:
+            self.action_step = 0
         self._last_movement = RIGHT
 
-    def go_up(self):
+    def go_up(self, is_macro=False):
+        if not is_macro:
+            self.action_step = 0
         self._last_movement = UP
 
-    def go_left(self):
+    def go_left(self, is_macro=False):
+        if not is_macro:
+            self.action_step = 0
         self._last_movement = LEFT
 
-    def put_bomb(self):
+    def put_bomb(self, is_macro=False):
+        if not is_macro:
+            self.action_step = 0
         self._last_movement = BOMB
 
     def start(self):
-        self.actions = []
-        self.actions.append(self.go_down)
-        self.actions.append(self.put_bomb)
-        self.actions.append(self.go_up)
-        self.actions.append(self.put_bomb)
-        self.actions.append(self.go_right)
-        self.actions.append(self.go_right)
-        self.actions.append(self.go_right)
-        self.actions.append(self.go_right)
-        self.actions.append(self.go_right)
-        self.actions.append(self.go_left)
+        pass
 
-        self.actions.append(self.go_down)
-        self.actions.append(self.go_down)
-        self.actions.append(self.put_bomb)
-        self.actions.append(self.go_up)
-        self.actions.append(self.go_up)
-        self.actions.append(self.go_right)
-        self.actions.append(self.go_right)
-        self.actions.append(self.go_right)
-        self.actions.append(self.go_right)
-        self.actions.append(self.go_right)
-        self.actions.append(self.go_left)
-
-        self.action_step = -1
+    def execute_macro(self, macro: List[Callable]):
+        if self.action_step >= len(macro):
+            self.action_step = 0
+        macro[self.action_step](True)
+        self.action_step += 1
 
     def execute_command(self, engine):
-
-        if self.am_i_safe():
-            self.action_step += 1
-            if self.action_step >= len(self.actions):
-                self.action_step = 0
-
-            self.actions[self.action_step]()
-
-        else:
-            # go to somewhere safe
-            pass
-
         pass
 
     def am_i_safe(self):

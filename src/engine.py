@@ -28,34 +28,45 @@ class Engine(object):
         self.explosions = Group(self)
         self.blocks = Group(self)
         self.bombs = Group(self)
+        self.walls = Group(self)
         self.bots: List[Bot] = []
         self.players: List[Player] = []
         self.turn = 1
         self.map: np.array = None
+        self._started = False
 
-    def build_map(self):
+    def build_map(self, x=13, y=11):
+
+        if x % 2 == 0:
+            raise ValueError("'x' must be a odd number")
+
+        if y % 2 == 0:
+            raise ValueError("'y' must be a odd number")
 
         array_x = []
 
-        for j in range(6):
+        for j in range(x):
 
             array_y = []
-            for i in range(13):
-                if i % 2 == 0:
-                    array_y.append([])
-                else:
-                    array_y.append([Wall()])
+            for i in range(y):
+                array_y.append([])
 
-            array_y_empty = []
-            for i in range(13):
-                array_y_empty.append([])
-
-            array_x.append(array_y_empty)
             array_x.append(array_y)
 
-        array_x.pop()
-
+        array_x[0][0].append(" ")
         self.map = np.array(array_x)
+        self.map[0][0].pop()
+
+    def create_walls(self):
+
+        for y in range(0, len(self.map)):
+            if y % 2 == 0:
+                continue
+            for x in range(0, len(self.map[y])):
+                if x % 2 == 0:
+                    continue
+
+                Wall(self, x, y)
 
     def draw_map(self):
         print("-" * 55)
@@ -86,6 +97,10 @@ class Engine(object):
             input("press any button to advance to the next turn...")
 
     def next_turn(self):
+
+        if not self._started:
+            raise ValueError("Game isn't started.")
+
         self.turn += 1
 
         for player in self.players:
@@ -118,10 +133,9 @@ class Engine(object):
         if len(players_alive) == 1:
             winner = players_alive.pop()
             print(f"Player {winner.name} won!")
-            exit()
 
         if len(players_alive) == 0:
-            p = Player("dumb")
+            p = Player("dumb", None)
             p.points = -1
             winners = [p]
             for player in self.players:
@@ -131,12 +145,21 @@ class Engine(object):
                     winners.append(player)
 
             if len(winners) == 1:
-                print(f"Player {winners.name} won!")
+                print(f"Player {winners[0].name} won!")
             else:
                 print(f"Draw: Players {' '.join([p.name for p in winners])}")
             exit()
 
     def start_game(self):
+
+        if len(self.players) < 2:
+            raise ValueError("Game can't start. It must have at least 2 players.")
+
+        if len(self.bots) < 2:
+            raise ValueError("Game can't start. It must have at least 2 bots.")
+
+        self._started = True
+
         for player in self.players:
             player.bot_sample.start()
         self.draw_map()

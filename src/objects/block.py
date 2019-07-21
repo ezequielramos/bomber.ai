@@ -2,9 +2,11 @@ import random
 
 
 class Block(object):
-    def __init__(self, x, y):
+    def __init__(self, engine, x, y):
         self.x = x
         self.y = y
+        self.engine = engine
+        engine.blocks.append(self)
 
 
 def remove_block_on(_map, blocks, x, y):
@@ -29,7 +31,7 @@ def put_blocks(engine):
         for x in range(len(engine.map[y])):
             if len(engine.map[y][x]) == 0:
                 if random.randint(0, 99) < 100:
-                    engine.blocks.append(Block(x, y))
+                    Block(engine, x, y)
 
     for bot in engine.bots:
         remove_block_on(engine.map, engine.blocks, bot.x, bot.y)
