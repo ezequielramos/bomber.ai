@@ -14,6 +14,8 @@ class Bot(object):
         self.y = y
         self.engine = engine
         self.player = player
+        self.engine.map[self.y][self.x].append(self)
+        self.player.bots.append(self)
 
     def move(self, command):
 
@@ -33,11 +35,14 @@ class Bot(object):
         if dest_y < 0 or dest_x < 0:
             return
 
-        for _object in self.engine.map[dest_y][dest_x]:
-            if isinstance(
-                _object, (objects.bomb.Bomb, objects.wall.Wall, objects.block.Block)
-            ):
-                return
+        try:
+            for _object in self.engine.map[dest_y][dest_x]:
+                if isinstance(
+                    _object, (objects.bomb.Bomb, objects.wall.Wall, objects.block.Block)
+                ):
+                    return
+        except IndexError:
+            return
 
         self.engine.map[dest_y][dest_x].append(self)
         self.engine.map[self.y][self.x].remove(self)
@@ -66,5 +71,4 @@ class Bot(object):
                         self.engine.blocks,
                     )
                 )
-                # TODO: aumentar o ponto do player e não do bot
                 self.player.points += 1
