@@ -29,11 +29,15 @@ class Engine(object):
         self.blocks = Group(self)
         self.bombs = Group(self)
         self.walls = Group(self)
-        self.bots: List[Bot] = []
+        self.bots = Group(self)
         self.players: List[Player] = []
         self.turn = 1
         self.map: np.array = None
         self._started = False
+        self._finished = False
+
+    def is_finished(self):
+        return self._finished
 
     def build_map(self, x=13, y=11):
 
@@ -101,6 +105,9 @@ class Engine(object):
         if not self._started:
             raise ValueError("Game isn't started.")
 
+        if self._finished:
+            raise ValueError("Game is finished.")
+
         self.turn += 1
 
         for player in self.players:
@@ -133,6 +140,8 @@ class Engine(object):
         if len(players_alive) == 1:
             winner = players_alive.pop()
             print(f"Player {winner.name} won!")
+            self._finished = True
+            return True
 
         if len(players_alive) == 0:
             p = Player("dumb", None)
@@ -148,7 +157,10 @@ class Engine(object):
                 print(f"Player {winners[0].name} won!")
             else:
                 print(f"Draw: Players {' '.join([p.name for p in winners])}")
-            exit()
+            self._finished = True
+            return True
+
+        return False
 
     def start_game(self):
 
@@ -168,4 +180,4 @@ class Engine(object):
         self.players.append(player)
 
     def add_bot(self, player, x, y):
-        self.bots.append(Bot(x, y, self, player))
+        self.bots.append(Bot(self, x, y, player))

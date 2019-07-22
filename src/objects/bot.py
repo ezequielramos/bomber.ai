@@ -9,12 +9,11 @@ BOMB = 5
 
 
 class Bot(object):
-    def __init__(self, x, y, engine, player):
+    def __init__(self, engine, x, y, player):
         self.x = x
         self.y = y
         self.engine = engine
         self.player = player
-        self.engine.map[self.y][self.x].append(self)
         self.player.bots.append(self)
 
     def move(self, command):
