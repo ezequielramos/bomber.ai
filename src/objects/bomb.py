@@ -5,7 +5,7 @@ class Bomb(object):
     def __init__(self, x, y, owner, group, _map, explosions, bots, blocks):
         self.x = x
         self.y = y
-        self.remaning_time = 7
+        self.remaning_time = 6
         self.power = 3
         self.owner = owner
         self.group = group
@@ -33,10 +33,9 @@ class Bomb(object):
             self.bots.remove(bot)
 
     def update(self):
-        self.remaning_time -= 1
-
         if self.remaning_time == 0:
             self.explode()
+        self.remaning_time -= 1
 
 
 def explosions_goint_to(bomb, x=0, y=0):

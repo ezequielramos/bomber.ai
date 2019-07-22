@@ -5,13 +5,13 @@ class Explosion(object):
     def __init__(self, x, y, group):
         self.x = x
         self.y = y
-        self.remaning_time = 2
+        self.remaning_time = 1
         self.group = group
 
     def update(self):
-        self.remaning_time -= 1
         if self.remaning_time == 0:
             self.group.remove(self)
+        self.remaning_time -= 1
 
 
 def create_explosion(_map, x, y, owner, explosions, blocks):
