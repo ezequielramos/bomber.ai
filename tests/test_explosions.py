@@ -798,6 +798,8 @@ class TestExplosion(unittest.TestCase):
                     self.assertIsInstance(engine.map[y][x][0], Explosion)
 
         self.assertEqual(engine.is_finished(), True)
+        self.assertEqual(engine.players[0].points, 1)
+        self.assertEqual(engine.players[1].points, 1)
 
     def test_bomb_killing_everyone(self):
         engine = Engine()
@@ -852,3 +854,5 @@ class TestExplosion(unittest.TestCase):
                     self.assertEqual(len(engine.map[y][x]), 0)
 
         self.assertEqual(engine.is_finished(), True)
+        self.assertEqual(engine.players[0].points, 51)
+        self.assertEqual(engine.players[1].points, 0)
