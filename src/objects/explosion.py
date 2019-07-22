@@ -30,6 +30,8 @@ def create_explosion(engine, x, y, owner):
 
             if isinstance(_object, objects.bot.Bot):
                 bots_killed.append(_object)
+                if _object.player != owner.player:
+                    owner.player.points += 50
 
             if isinstance(_object, objects.block.Block):
                 objects.block.remove_block_on(engine, x, y)

@@ -49,6 +49,22 @@ class BotPlantBombToExplode2(BotSample):
         self.execute_macro(self.macro())
 
 
+class BotSimplePlant(BotSample):
+    def macro(self):
+        return [
+            self.put_bomb,
+            self.do_nothing,
+            self.do_nothing,
+            self.do_nothing,
+            self.do_nothing,
+            self.do_nothing,
+            self.do_nothing,
+        ]
+
+    def execute_command(self, engine):
+        self.execute_macro(self.macro())
+
+
 class TestExplosion(unittest.TestCase):
     def test_bomb_explode(self):
         engine = Engine()
@@ -586,3 +602,253 @@ class TestExplosion(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             engine.next_turn()
+
+    def test_bomb_hitting_another_bomb(self):
+        engine = Engine()
+        engine.build_map(x=7, y=7)
+        player_1 = Player("1", BotPlantBombToExplode())
+        player_2 = Player("2", BotPlantBombToExplode2())
+        engine.add_player(player_1)
+        engine.add_player(player_2)
+
+        engine.add_bot(player_1, 2, 3)
+        engine.add_bot(player_2, 4, 3)
+        engine.start_game()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 2 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                elif x == 4 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+        engine.next_turn()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 2 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 2)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                    self.assertIsInstance(engine.map[y][x][1], Bomb)
+                elif x == 4 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+        engine.next_turn()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 2 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bomb)
+                elif x == 3 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                elif x == 4 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 2)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                    self.assertIsInstance(engine.map[y][x][1], Bomb)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+        engine.next_turn()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 2 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bomb)
+                elif x == 3 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                elif x == 4 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bomb)
+                elif x == 3 and y == 4:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+        engine.next_turn()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 2 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bomb)
+                elif x == 3 and y == 2:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                elif x == 4 and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bomb)
+                elif x == 3 and y == 4:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+        engine.next_turn()
+        engine.next_turn()
+        engine.next_turn()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x in [2, 3] and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 2)
+                    self.assertIsInstance(engine.map[y][x][0], Explosion)
+                    self.assertIsInstance(engine.map[y][x][1], Explosion)
+                elif x in [0, 1, 4, 5, 6] and y == 3:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Explosion)
+                elif x == 2 and y in [1, 2, 3, 4, 5]:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Explosion)
+                elif x == 4 and y in [1, 2, 3, 4, 5]:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Explosion)
+                elif x == 3 and y == 4:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                elif x == 3 and y == 2:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+        engine.next_turn()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 3 and y == 4:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                elif x == 3 and y == 2:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+    def test_bomb_killing_everyone_draw(self):
+        engine = Engine()
+        engine.build_map(x=3, y=3)
+        player_1 = Player("1", BotSimplePlant())
+        player_2 = Player("2", BotSimplePlant())
+        engine.add_player(player_1)
+        engine.add_player(player_2)
+
+        engine.add_bot(player_1, 0, 0)
+        engine.add_bot(player_2, 1, 1)
+        engine.start_game()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 0 and y == 0:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                elif x == 1 and y == 1:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+        engine.next_turn()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 0 and y == 0:
+                    self.assertEqual(len(engine.map[y][x]), 2)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                    self.assertIsInstance(engine.map[y][x][1], Bomb)
+                elif x == 1 and y == 1:
+                    self.assertEqual(len(engine.map[y][x]), 2)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                    self.assertIsInstance(engine.map[y][x][1], Bomb)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+        engine.next_turn()
+        engine.next_turn()
+        engine.next_turn()
+        engine.next_turn()
+        engine.next_turn()
+        engine.next_turn()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 2 and y == 2:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+                elif x == 0 and y == 1:
+                    self.assertEqual(len(engine.map[y][x]), 2)
+                    self.assertIsInstance(engine.map[y][x][0], Explosion)
+                    self.assertIsInstance(engine.map[y][x][1], Explosion)
+                elif x == 1 and y == 0:
+                    self.assertEqual(len(engine.map[y][x]), 2)
+                    self.assertIsInstance(engine.map[y][x][0], Explosion)
+                    self.assertIsInstance(engine.map[y][x][1], Explosion)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Explosion)
+
+        self.assertEqual(engine.is_finished(), True)
+
+    def test_bomb_killing_everyone(self):
+        engine = Engine()
+        engine.build_map(x=3, y=3)
+        player_1 = Player("1", BotSimplePlant())
+        player_2 = Player("2", BotSample())
+        engine.add_player(player_1)
+        engine.add_player(player_2)
+
+        engine.add_bot(player_1, 0, 0)
+        engine.add_bot(player_2, 0, 1)
+        engine.start_game()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 0 and y in [0, 1]:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+        engine.next_turn()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 0 and y == 0:
+                    self.assertEqual(len(engine.map[y][x]), 2)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                    self.assertIsInstance(engine.map[y][x][1], Bomb)
+                elif x == 0 and y == 1:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Bot)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+        engine.next_turn()
+        engine.next_turn()
+        engine.next_turn()
+        engine.next_turn()
+        engine.next_turn()
+        engine.next_turn()
+
+        for y in range(len(engine.map)):
+            for x in range(len(engine.map[y])):
+                if x == 0 and y in [0, 1, 2]:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Explosion)
+                elif x in [0, 1, 2] and y == 0:
+                    self.assertEqual(len(engine.map[y][x]), 1)
+                    self.assertIsInstance(engine.map[y][x][0], Explosion)
+                else:
+                    self.assertEqual(len(engine.map[y][x]), 0)
+
+        self.assertEqual(engine.is_finished(), True)

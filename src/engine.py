@@ -10,9 +10,6 @@ from src.objects.group import Group
 from src.objects.player import Player
 from typing import List
 
-
-TURN_BY_TURN_MODE = False
-
 NONE = 0
 RIGHT = 1
 LEFT = 2
@@ -97,8 +94,6 @@ class Engine(object):
         print(np.array(illustrated_map))
         for player in self.players:
             print(f"Score player {player.name}: {player.points}")
-        if TURN_BY_TURN_MODE:
-            input("press any button to advance to the next turn...")
 
     def next_turn(self):
 
@@ -150,7 +145,7 @@ class Engine(object):
             for player in self.players:
                 if player.points > winners[0].points:
                     winners = [player]
-                if player.points == winners[0].points:
+                elif player.points == winners[0].points:
                     winners.append(player)
 
             if len(winners) == 1:
