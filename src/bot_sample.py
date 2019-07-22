@@ -38,6 +38,11 @@ class BotSample(object):
             self.action_step = 0
         self._last_movement = BOMB
 
+    def do_nothing(self, is_macro=False):
+        if not is_macro:
+            self.action_step = 0
+        self._last_movement = NONE
+
     def start(self):
         pass
 

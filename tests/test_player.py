@@ -11,6 +11,7 @@ from src.objects.bot import Bot
 from src.objects.player import Player
 from src.objects.block import Block, put_blocks
 from src.objects.bomb import Bomb
+from src.objects.explosion import Explosion
 
 
 class BotTest(BotSample):
