@@ -60,15 +60,6 @@ class Bot(object):
 
             if bomb_quantity < self.player.bombs_limit:
                 self.engine.bombs.append(
-                    objects.bomb.Bomb(
-                        self.x,
-                        self.y,
-                        self,
-                        self.engine.bombs,
-                        self.engine.map,
-                        self.engine.explosions,
-                        self.engine.bots,
-                        self.engine.blocks,
-                    )
+                    objects.bomb.Bomb(self.engine, self.x, self.y, self)
                 )
                 self.player.points += 1

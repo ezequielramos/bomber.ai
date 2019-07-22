@@ -14,7 +14,7 @@ class Explosion(object):
         self.remaning_time -= 1
 
 
-def create_explosion(_map, x, y, owner, explosions, blocks):
+def create_explosion(engine, x, y, owner):
     bots_killed = []
 
     if x < 0:
@@ -24,7 +24,7 @@ def create_explosion(_map, x, y, owner, explosions, blocks):
 
     # TODO: talvez essas logicas deveriam estar dentro do objeto explosion?
     try:
-        for _object in _map[y][x]:
+        for _object in engine.map[y][x]:
             if isinstance(_object, objects.wall.Wall):
                 raise ValueError("tem uma parede ai irmao")
 
@@ -32,8 +32,8 @@ def create_explosion(_map, x, y, owner, explosions, blocks):
                 bots_killed.append(_object)
 
             if isinstance(_object, objects.block.Block):
-                objects.block.remove_block_on(_map, blocks, x, y)
-                explosions.append(Explosion(x, y, explosions))
+                objects.block.remove_block_on(engine, x, y)
+                engine.explosions.append(Explosion(x, y, engine.explosions))
                 owner.player.points += 2
                 raise ValueError("acertou um bloco")
 
@@ -44,6 +44,6 @@ def create_explosion(_map, x, y, owner, explosions, blocks):
     except IndexError:
         raise ValueError("explosao foi pra fora do mapa")
 
-    explosions.append(Explosion(x, y, explosions))
+    engine.explosions.append(Explosion(x, y, engine.explosions))
 
     return bots_killed

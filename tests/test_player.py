@@ -9,7 +9,7 @@ from src.bot_sample import BotSample
 from src.objects.wall import Wall
 from src.objects.bot import Bot
 from src.objects.player import Player
-from src.objects.block import Block
+from src.objects.block import Block, put_blocks
 from src.objects.bomb import Bomb
 
 
@@ -40,6 +40,14 @@ class BotGoesDown(BotSample):
 class BotWalkingIntoBomb(BotSample):
     def macro(self):
         return [self.put_bomb, self.go_right, self.go_left]
+
+    def execute_command(self, engine):
+        self.execute_macro(self.macro())
+
+
+class BotMultipleBombs(BotSample):
+    def macro(self):
+        return [self.put_bomb, self.go_right]
 
     def execute_command(self, engine):
         self.execute_macro(self.macro())
@@ -78,6 +86,27 @@ class TestCreateMap(unittest.TestCase):
 
 
 class TestPutObjectsOnMap(unittest.TestCase):
+    def test_putting_wall(self):
+        engine = Engine()
+        engine.build_map(x=3, y=3)
+        Wall(engine, 1, 1)
+
+        # y = 0
+        self.assertEqual(len(engine.map[0][0]), 0)
+        self.assertEqual(len(engine.map[0][1]), 0)
+        self.assertEqual(len(engine.map[0][2]), 0)
+
+        # y = 1
+        self.assertEqual(len(engine.map[1][0]), 0)
+        self.assertEqual(len(engine.map[1][1]), 1)
+        self.assertIsInstance(engine.map[1][1][0], Wall)
+        self.assertEqual(len(engine.map[1][2]), 0)
+
+        # y = 2
+        self.assertEqual(len(engine.map[2][0]), 0)
+        self.assertEqual(len(engine.map[2][1]), 0)
+        self.assertEqual(len(engine.map[2][2]), 0)
+
     def test_putting_walls(self):
         engine = Engine()
         engine.build_map(x=5, y=5)
@@ -171,6 +200,30 @@ class TestPutObjectsOnMap(unittest.TestCase):
         self.assertEqual(len(engine.map[2][2]), 1)
         self.assertIsInstance(engine.map[2][2][0], Block)
 
+    def test_putting_default_blocks(self):
+        engine = generate_engine_with_two_bots(BotSample)
+        put_blocks(engine, 99)
+        engine.draw_map()
+        # y = 0
+        self.assertEqual(len(engine.map[0][0]), 1)
+        self.assertIsInstance(engine.map[0][0][0], Bot)
+        self.assertEqual(len(engine.map[0][1]), 0)
+        self.assertEqual(len(engine.map[0][2]), 1)
+        self.assertIsInstance(engine.map[0][2][0], Block)
+
+        # y = 1
+        self.assertEqual(len(engine.map[1][0]), 0)
+        self.assertEqual(len(engine.map[1][1]), 1)
+        self.assertIsInstance(engine.map[1][1][0], Block)
+        self.assertEqual(len(engine.map[1][2]), 0)
+
+        # y = 2
+        self.assertEqual(len(engine.map[2][0]), 1)
+        self.assertIsInstance(engine.map[2][0][0], Block)
+        self.assertEqual(len(engine.map[2][1]), 0)
+        self.assertEqual(len(engine.map[2][2]), 1)
+        self.assertIsInstance(engine.map[2][2][0], Bot)
+
     def test_putting_bot(self):
         engine = Engine()
         engine.build_map(x=3, y=3)
@@ -242,6 +295,7 @@ class TestPutObjectsOnMap(unittest.TestCase):
 
     def test_bot_goes_left(self):
         engine = generate_engine_with_two_bots(BotGoesLeft)
+        engine.start_game()
 
         # y = 0
         self.assertEqual(len(engine.map[0][0]), 1)
@@ -280,6 +334,7 @@ class TestPutObjectsOnMap(unittest.TestCase):
 
     def test_bot_goes_right(self):
         engine = generate_engine_with_two_bots(BotGoesRight)
+        engine.start_game()
 
         # y = 0
         self.assertEqual(len(engine.map[0][0]), 1)
@@ -318,6 +373,7 @@ class TestPutObjectsOnMap(unittest.TestCase):
 
     def test_bot_goes_up(self):
         engine = generate_engine_with_two_bots(BotGoesUp)
+        engine.start_game()
 
         # y = 0
         self.assertEqual(len(engine.map[0][0]), 1)
@@ -356,6 +412,7 @@ class TestPutObjectsOnMap(unittest.TestCase):
 
     def test_bot_goes_down(self):
         engine = generate_engine_with_two_bots(BotGoesDown)
+        engine.start_game()
 
         # y = 0
         self.assertEqual(len(engine.map[0][0]), 1)
@@ -395,6 +452,7 @@ class TestPutObjectsOnMap(unittest.TestCase):
     def test_walk_against_wall(self):
         engine = generate_engine_with_two_bots(BotGoesDown)
         Wall(engine, 0, 1)
+        engine.start_game()
 
         # y = 0
         self.assertEqual(len(engine.map[0][0]), 1)
@@ -436,6 +494,7 @@ class TestPutObjectsOnMap(unittest.TestCase):
     def test_walk_against_block(self):
         engine = generate_engine_with_two_bots(BotGoesDown)
         Block(engine, 0, 1)
+        engine.start_game()
 
         # y = 0
         self.assertEqual(len(engine.map[0][0]), 1)
@@ -559,6 +618,90 @@ class TestPutObjectsOnMap(unittest.TestCase):
         self.assertEqual(len(engine.map[2][2]), 1)
         self.assertIsInstance(engine.map[2][2][0], Bomb)
 
+    def test_trying_to_put_multiple_bombs(self):
+        engine = generate_engine_with_two_bots(BotMultipleBombs)
+        engine.start_game()
+        # turn 1
+        # y = 0
+        self.assertEqual(len(engine.map[0][0]), 1)
+        self.assertIsInstance(engine.map[0][0][0], Bot)
+        self.assertEqual(len(engine.map[0][1]), 0)
+        self.assertEqual(len(engine.map[0][2]), 0)
+
+        # y = 1
+        self.assertEqual(len(engine.map[1][0]), 0)
+        self.assertEqual(len(engine.map[1][1]), 0)
+        self.assertEqual(len(engine.map[1][2]), 0)
+
+        # y = 2
+        self.assertEqual(len(engine.map[2][0]), 0)
+        self.assertEqual(len(engine.map[2][1]), 0)
+        self.assertEqual(len(engine.map[2][2]), 1)
+        self.assertIsInstance(engine.map[2][2][0], Bot)
+        # --------------------------
+        # turn 2
+        engine.next_turn()
+        # y = 0
+        self.assertEqual(len(engine.map[0][0]), 2)
+        self.assertIsInstance(engine.map[0][0][0], Bot)
+        self.assertIsInstance(engine.map[0][0][1], Bomb)
+        self.assertEqual(len(engine.map[0][1]), 0)
+        self.assertEqual(len(engine.map[0][2]), 0)
+
+        # y = 1
+        self.assertEqual(len(engine.map[1][0]), 0)
+        self.assertEqual(len(engine.map[1][1]), 0)
+        self.assertEqual(len(engine.map[1][2]), 0)
+
+        # y = 2
+        self.assertEqual(len(engine.map[2][0]), 0)
+        self.assertEqual(len(engine.map[2][1]), 0)
+        self.assertEqual(len(engine.map[2][2]), 2)
+        self.assertIsInstance(engine.map[2][2][0], Bot)
+        self.assertIsInstance(engine.map[2][2][1], Bomb)
+        # --------------------------
+        # turn 3
+        engine.next_turn()
+        # y = 0
+        self.assertEqual(len(engine.map[0][0]), 1)
+        self.assertIsInstance(engine.map[0][0][0], Bomb)
+        self.assertEqual(len(engine.map[0][1]), 1)
+        self.assertIsInstance(engine.map[0][1][0], Bot)
+        self.assertEqual(len(engine.map[0][2]), 0)
+
+        # y = 1
+        self.assertEqual(len(engine.map[1][0]), 0)
+        self.assertEqual(len(engine.map[1][1]), 0)
+        self.assertEqual(len(engine.map[1][2]), 0)
+
+        # y = 2
+        self.assertEqual(len(engine.map[2][0]), 0)
+        self.assertEqual(len(engine.map[2][1]), 0)
+        self.assertEqual(len(engine.map[2][2]), 2)
+        self.assertIsInstance(engine.map[2][2][0], Bot)
+        self.assertIsInstance(engine.map[2][2][1], Bomb)
+        # --------------------------
+        # turn 4
+        engine.next_turn()
+        # y = 0
+        self.assertEqual(len(engine.map[0][0]), 1)
+        self.assertIsInstance(engine.map[0][0][0], Bomb)
+        self.assertEqual(len(engine.map[0][1]), 1)
+        self.assertIsInstance(engine.map[0][1][0], Bot)
+        self.assertEqual(len(engine.map[0][2]), 0)
+
+        # y = 1
+        self.assertEqual(len(engine.map[1][0]), 0)
+        self.assertEqual(len(engine.map[1][1]), 0)
+        self.assertEqual(len(engine.map[1][2]), 0)
+
+        # y = 2
+        self.assertEqual(len(engine.map[2][0]), 0)
+        self.assertEqual(len(engine.map[2][1]), 0)
+        self.assertEqual(len(engine.map[2][2]), 2)
+        self.assertIsInstance(engine.map[2][2][0], Bot)
+        self.assertIsInstance(engine.map[2][2][1], Bomb)
+
 
 def generate_engine_with_two_bots(bot_sample):
     engine = Engine()
@@ -571,5 +714,4 @@ def generate_engine_with_two_bots(bot_sample):
     engine.add_bot(player_1, 0, 0)
     engine.add_bot(player_2, 2, 2)
 
-    engine.start_game()
     return engine
