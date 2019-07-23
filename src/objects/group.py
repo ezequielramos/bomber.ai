@@ -17,3 +17,8 @@ class Group(list):
     def remove(self, value):
         self.engine.map[value.y][value.x].remove(value)
         return super().remove(value)
+
+    def get_objects_position(self):
+        return bytes(
+            " ".join([f"{_object.x},{_object.y}" for _object in self]) + "\n", "utf8"
+        )

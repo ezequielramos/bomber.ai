@@ -48,7 +48,10 @@ if __name__ == "__main__":
     y, x = engine.map.shape
     engine.add_bot(player_2, x - 1, y - 1)
     put_blocks(engine)
-    engine.start_game()
+    file = open("replay_files/replay.data", "wb")
+    engine.start_game(file)
 
     for _ in range(2, 501):
         engine.next_turn()
+
+    file.close()

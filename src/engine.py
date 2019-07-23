@@ -1,5 +1,7 @@
 import numpy as np
 import random
+import _io
+from typing import List
 
 from src.objects.wall import Wall
 from src.objects.block import Block, remove_block_on, put_blocks
@@ -8,7 +10,6 @@ from src.objects.explosion import Explosion, create_explosion
 from src.objects.bot import Bot
 from src.objects.group import Group
 from src.objects.player import Player
-from typing import List
 
 NONE = 0
 RIGHT = 1
@@ -32,11 +33,12 @@ class Engine(object):
         self.map: np.array = None
         self._started = False
         self._finished = False
+        self.file: _io.BufferedWriter = None
 
     def is_finished(self):
         return self._finished
 
-    def build_map(self, x=13, y=11):
+    def build_map(self, y=13, x=11):
 
         if x % 2 == 0:
             raise ValueError("'x' must be a odd number")
@@ -94,6 +96,13 @@ class Engine(object):
         print(np.array(illustrated_map))
         for player in self.players:
             print(f"Score player {player.name}: {player.points}")
+
+        if self.file is not None:
+            self.file.write(self.blocks.get_objects_position())
+            self.file.write(self.explosions.get_objects_position())
+            self.file.write(self.bombs.get_objects_position())
+            self.file.write(self.bots.get_objects_position())
+            # self.players: List[Player] = []
 
     def next_turn(self):
 
@@ -157,7 +166,7 @@ class Engine(object):
 
         return False
 
-    def start_game(self):
+    def start_game(self, file: _io.BufferedWriter = None):
 
         if len(self.players) < 2:
             raise ValueError("Game can't start. It must have at least 2 players.")
@@ -166,6 +175,23 @@ class Engine(object):
             raise ValueError("Game can't start. It must have at least 2 bots.")
 
         self._started = True
+        self.file = file
+
+        if self.file is not None:
+            y, x = self.map.shape
+            self.file.write(bytes(f"{x},{y}\n", "utf8"))
+
+            self.file.write(
+                bytes(
+                    " ".join([f"{wall.x},{wall.y}" for wall in self.walls]) + "\n",
+                    "utf8",
+                )
+            )
+
+            for player in self.players:
+                self.file.write(bytes(f"{player.name}\n", "utf8"))
+
+            self.file.write(b"\n")
 
         for player in self.players:
             player.bot_sample.start()

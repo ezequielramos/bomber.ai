@@ -1,5 +1,9 @@
 window.onload = async () => {
 
+    function delay(time) {
+        return new Promise((resolve, reject) => setTimeout(resolve, time));
+    }
+
     function loadImages(src) {
         return new Promise((resolve, reject) => {
             const img = new Image(50, 50);
@@ -16,82 +20,106 @@ window.onload = async () => {
     const bomberai = await loadImages('images/bomber.ai.png');
     const explosion = await loadImages('images/explosion.png');
 
-    var c = document.getElementById("myCanvas");
-    var ctx = c.getContext("2d");
-
-    for (var x = 0; x < 15; x++) {
-        ctx.drawImage(wall, 50 * x, 0);
-        ctx.drawImage(wall, 50 * x, 12 * 50);
-    }
-
-    for (var y = 0; y < 13; y++) {
-        ctx.drawImage(wall, 0, 50 * y);
-        ctx.drawImage(wall, 14 * 50, 50 * y);
-    }
-
-    for (var x = 1; x < 14; x++) {
-        for (var y = 1; y < 12; y++) {
-            ctx.drawImage(emptyspace, 50 * x, 50 * y);
+    function clear_object_list(raw_line) {
+        const objects_aux = raw_line.split(' ');
+        const objects = [];
+        for (const _object of objects_aux) {
+            [x, y] = _object.split(',');
+            objects.push({ x, y });
         }
+        return objects;
     }
 
-    for (var x = 0; x < 14; x += 2) {
-        for (var y = 0; y < 12; y += 2) {
-            ctx.drawImage(wall, 50 * x, 50 * y);
+    window.openFile = function (event) {
+        const input = event.target;
+
+        const reader = new FileReader();
+        reader.onload = async () => {
+            const text = reader.result;
+            const line_by_line = text.split('\n');
+
+            let map_size = line_by_line.splice(0, 1)[0];
+
+            [width, height] = map_size.split(',');
+            map_size = { width, height };
+
+            let walls = line_by_line.splice(0, 1)[0];
+
+            walls_aux = walls.split(' ');
+            walls = [];
+            for (const wall of walls_aux) {
+                [x, y] = wall.split(',');
+                walls.push({ x, y });
+            }
+
+            const players = [];
+            let player = line_by_line.splice(0, 1);
+            while (player != "") {
+                players.push(player);
+                player = line_by_line.splice(0, 1);
+            }
+
+            let turn_objects = line_by_line.splice(0, 4);
+            turn = 1;
+
+            while (turn_objects.length == 4) {
+                let blocks = clear_object_list(turn_objects[0]);
+                let explosions = clear_object_list(turn_objects[1]);
+                let bombs = clear_object_list(turn_objects[2]);
+                let bots = clear_object_list(turn_objects[3]);
+
+                drawCanvas(map_size, walls, blocks, explosions, bombs, bots, players);
+                turn_objects = line_by_line.splice(0, 4);
+                turn += 1;
+                await delay(100);
+            }
+        };
+        reader.readAsText(input.files[0]);
+    };
+
+    function drawCanvas(map_size, walls, blocks, explosions, bombs, bots, players) {
+
+
+        const c = document.getElementById("myCanvas");
+        const ctx = c.getContext("2d");
+
+        for (var x = 0; x < map_size.width - (-2); x++) {
+            ctx.drawImage(wall, 50 * x, 0);
+            ctx.drawImage(wall, 50 * x, (map_size.height - (-1)) * 50);
         }
-    }
 
-    for (var x = 1; x < 14; x += 2) {
-        for (var y = 1; y < 12; y += 2) {
-            if (x == 1 && y == 1) {
-                continue;
-            }
-
-            if (x == 1 && y == 1) {
-                continue;
-            }
-
-            if (x == 11 && y == 11) {
-                continue;
-            }
-
-            if (x == 13 && y == 11) {
-                continue;
-            }
-
-            if (x == 13 && y == 9) {
-                continue;
-            }
-            ctx.drawImage(block, 50 * x, 50 * y);
+        for (var y = 0; y < map_size.height - (-2); y++) {
+            ctx.drawImage(wall, 0, 50 * y);
+            ctx.drawImage(wall, (map_size.width - (-1)) * 50, 50 * y);
         }
+
+        for (var x = 1; x < map_size.width - (-1); x++) {
+            for (var y = 1; y < map_size.height - (-1); y++) {
+                ctx.drawImage(emptyspace, 50 * x, 50 * y);
+            }
+        }
+
+        for (const object of walls) {
+            ctx.drawImage(wall, 50 * (object.x - (-1)), 50 * (object.y - (-1)));
+        }
+
+        for (const object of blocks) {
+            ctx.drawImage(block, 50 * (object.x - (-1)), 50 * (object.y - (-1)));
+        }
+
+        for (const object of explosions) {
+            ctx.drawImage(explosion, 50 * (object.x - (-1)), 50 * (object.y - (-1)));
+        }
+
+        for (const object of bombs) {
+            ctx.drawImage(bomb, 50 * (object.x - (-1)), 50 * (object.y - (-1)));
+        }
+
+        for (const object of bots) {
+            ctx.drawImage(bomberai, 50 * (object.x - (-1)), (50 * (object.y - (-1))) - 20);
+        }
+
     }
-
-    ctx.drawImage(block, 50 * 3, 50 * 1);
-    ctx.drawImage(block, 50 * 3, 50 * 3);
-    ctx.drawImage(block, 50 * 1, 50 * 3);
-    ctx.drawImage(block, 50 * 2, 50 * 3);
-    ctx.drawImage(block, 50 * 3, 50 * 2);
-    ctx.drawImage(bomb, 50 * 2, 50 * 1);
-    ctx.drawImage(bomberai, 50 * 2, (50 * 1) - 20);
-
-
-
-    ctx.drawImage(bomberai, 50 * 10, (50 * 11) - 20);
-    ctx.drawImage(explosion, 50 * 13, 50 * 11);
-    ctx.drawImage(explosion, 50 * 13, 50 * 10);
-    ctx.drawImage(explosion, 50 * 13, 50 * 9);
-    ctx.drawImage(explosion, 50 * 12, 50 * 11);
-    ctx.drawImage(explosion, 50 * 11, 50 * 11);
-
-    ctx.drawImage(block, 50 * 9, 50 * 11);
-    ctx.drawImage(block, 50 * 9, 50 * 10);
-    ctx.drawImage(block, 50 * 9, 50 * 9);
-    ctx.drawImage(block, 50 * 10, 50 * 9);
-    ctx.drawImage(block, 50 * 11, 50 * 9);
-    ctx.drawImage(block, 50 * 12, 50 * 9);
-    ctx.drawImage(block, 50 * 13, 50 * 8);
-
-
 
 
 };

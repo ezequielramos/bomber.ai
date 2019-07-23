@@ -58,7 +58,7 @@ class TestCreateMap(unittest.TestCase):
     def test_default_map(self):
         engine = Engine()
         engine.build_map()
-        self.assertEqual((13, 11), engine.map.shape)
+        self.assertEqual((11, 13), engine.map.shape)
 
         for col in engine.map:
             for row in col:
