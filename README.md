@@ -5,7 +5,9 @@
 [![Python Version](https://img.shields.io/badge/python-3.7.3-blue.svg)](https://www.python.org/downloads/release/python-373/)
 
 
-- servidor manda informações de:4
+<img src="assets/sample.gif" width="600" height="400" />
+
+- servidor manda informações de:
   - mapa
   - posição dos bomber.ai
   - poderes do inimigo?
