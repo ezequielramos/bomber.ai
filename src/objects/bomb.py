@@ -41,3 +41,6 @@ class Bomb(object):
             except ValueError:
                 break
         return bots_killed
+
+    def get_cell(self):
+        return self.engine.map[self.y][self.x]

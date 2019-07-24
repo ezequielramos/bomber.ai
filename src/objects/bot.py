@@ -62,3 +62,6 @@ class Bot(object):
                     objects.bomb.Bomb(self.engine, self.x, self.y, self)
                 )
                 self.player.points += 1
+
+    def get_cell(self):
+        return self.engine.map[self.y][self.x]
