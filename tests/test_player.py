@@ -19,22 +19,22 @@ class BotTest(BotSample):
 
 
 class BotGoesLeft(BotSample):
-    def execute_command(self, engine):
+    def execute_command(self, engine, myself):
         self.go_left()
 
 
 class BotGoesRight(BotSample):
-    def execute_command(self, engine):
+    def execute_command(self, engine, myself):
         self.go_right()
 
 
 class BotGoesUp(BotSample):
-    def execute_command(self, engine):
+    def execute_command(self, engine, myself):
         self.go_up()
 
 
 class BotGoesDown(BotSample):
-    def execute_command(self, engine):
+    def execute_command(self, engine, myself):
         self.go_down()
 
 
@@ -42,7 +42,7 @@ class BotWalkingIntoBomb(BotSample):
     def macro(self):
         return [self.put_bomb, self.go_right, self.go_left]
 
-    def execute_command(self, engine):
+    def execute_command(self, engine, myself):
         self.execute_macro(self.macro())
 
 
@@ -50,7 +50,7 @@ class BotMultipleBombs(BotSample):
     def macro(self):
         return [self.put_bomb, self.go_right]
 
-    def execute_command(self, engine):
+    def execute_command(self, engine, myself):
         self.execute_macro(self.macro())
 
 

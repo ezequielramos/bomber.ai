@@ -27,7 +27,7 @@ class BotPlantBombToExplode(BotSample):
             self.do_nothing,
         ]
 
-    def execute_command(self, engine):
+    def execute_command(self, engine, myself):
         self.execute_macro(self.macro())
 
 
@@ -45,7 +45,7 @@ class BotPlantBombToExplode2(BotSample):
             self.do_nothing,
         ]
 
-    def execute_command(self, engine):
+    def execute_command(self, engine, myself):
         self.execute_macro(self.macro())
 
 
@@ -61,7 +61,7 @@ class BotSimplePlant(BotSample):
             self.do_nothing,
         ]
 
-    def execute_command(self, engine):
+    def execute_command(self, engine, myself):
         self.execute_macro(self.macro())
 
 

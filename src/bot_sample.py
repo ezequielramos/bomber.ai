@@ -52,11 +52,8 @@ class BotSample(object):
         macro[self.action_step](True)
         self.action_step += 1
 
-    def execute_command(self, engine):
+    def execute_command(self, engine, myself):
         pass
-
-    def am_i_safe(self):
-        return True
 
     def looking_for_safe_place(self):
         # usar logica de arvore para achar o caminho mais curto

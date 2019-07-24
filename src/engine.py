@@ -10,6 +10,7 @@ from src.objects.explosion import Explosion, create_explosion
 from src.objects.bot import Bot
 from src.objects.group import Group
 from src.objects.player import Player
+from src.objects.cell import Cell
 
 NONE = 0
 RIGHT = 1
@@ -52,13 +53,36 @@ class Engine(object):
 
             array_y = []
             for i in range(y):
-                array_y.append([])
+                array_y.append(Cell(i, j))
 
             array_x.append(array_y)
 
         array_x[0][0].append(" ")
         self.map = np.array(array_x)
         self.map[0][0].pop()
+
+        for y in range(len(self.map)):
+            for x in range(len(self.map[y])):
+                try:
+                    if (y - 1) < 0:
+                        raise ValueError("y menor que zero")
+                    self.map[y][x].up = self.map[y - 1][x]
+                except:
+                    pass
+                try:
+                    self.map[y][x].down = self.map[y + 1][x]
+                except:
+                    pass
+                try:
+                    if (x - 1) < 0:
+                        raise ValueError("x menor que zero")
+                    self.map[y][x].left = self.map[y][x - 1]
+                except:
+                    pass
+                try:
+                    self.map[y][x].right = self.map[y][x + 1]
+                except:
+                    pass
 
     def create_walls(self):
 
@@ -116,7 +140,7 @@ class Engine(object):
 
         for player in self.players:
             # FIXME: i cant send the actually _map object, i need to clone it
-            player.bot_sample.execute_command(self)
+            player.bot_sample.execute_command(self, player)
             player.last_movement = player.bot_sample._last_movement
             player.bot_sample._last_movement = NONE
 
