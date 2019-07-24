@@ -6,6 +6,7 @@
 
 
 <img src="assets/sample.gif" width="600" height="400" />
+<img src="assets/sample3.gif" width="600" height="400" />
 
 - servidor manda informações de:
   - mapa
