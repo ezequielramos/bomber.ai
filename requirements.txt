@@ -1,5 +1,5 @@
 pytest==5.0.1
 pytest-black==0.3.7
 pytest-cov==2.7.1
-numpy==1.16.4
+numpy==1.22.0
 python-coveralls==2.9.2
